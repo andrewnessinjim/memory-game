@@ -31,6 +31,11 @@ let config = {
         src: "./src/images/**/*",
         devDest: "./dev_dist/images",
         prodDest: "./dist/images"
+    },
+    favicon: {
+        src: "./src/favicon.ico",
+        devDest: "./dev_dist",
+        prodDest: "./dist"
     }
 }
 
@@ -39,13 +44,16 @@ gulp.task("dev:scripts", devScripts);
 gulp.task("dev:html", devHTML);
 gulp.task("dev:watch", devWatch);
 gulp.task("dev:images", devImages);
+gulp.task("dev:favicon", devFavicon)
 
 gulp.task("dev:build", gulp.parallel(
     "dev:styles",
     "dev:html",
     "dev:scripts",
-    "dev:images"
+    "dev:images",
+    "dev:favicon"
 ));
+
 gulp.task("dev", gulp.series(
     "dev:build",
     "dev:watch"
@@ -56,12 +64,14 @@ gulp.task("prod:scripts", prodScripts);
 gulp.task("prod:html", prodHTML);
 gulp.task("prod:watch", prodWatch);
 gulp.task("prod:images", prodImages);
+gulp.task("prod:favicon", prodFavicon)
 
 gulp.task("prod:build", gulp.parallel(
     "prod:styles",
     "prod:html",
     "prod:scripts",
-    "prod:images"
+    "prod:images",
+    "prod:favicon"
 ));
 
 gulp.task("prod", gulp.series(
@@ -122,6 +132,18 @@ function prodImages() {
     return gulp
         .src(config.images.src)
         .pipe(gulp.dest(config.images.prodDest));
+}
+
+function devFavicon() {
+    return gulp
+        .src(config.favicon.src)
+        .pipe(gulp.dest(config.favicon.devDest))
+}
+
+function prodFavicon() {
+    return gulp
+        .src(config.favicon.src)
+        .pipe(gulp.dest(config.favicon.prodDest))
 }
 
 function devWatch(){
