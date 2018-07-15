@@ -1,0 +1,27 @@
+let cards = (function() {
+  const
+    STATE_OPEN= "state_open",
+    STATE_CLOSED= "state_closed",
+    STATE_WAITING= "state_waiting";
+
+  let _url = Symbol("URL");
+  let _state = Symbol("state");
+  let _id = Symbol("id");
+
+  return {
+    Card: class Card {
+      constructor(url, state, id) {
+        this[_url] = url;
+        this[_state] = state;
+        this[_id] = id;
+      }
+
+      setState(state) {
+        this._state = state;
+      }
+    },
+    STATE_OPEN: STATE_OPEN,
+    STATE_CLOSED: STATE_CLOSED,
+    STATE_WAITING: STATE_WAITING
+  }
+})();
