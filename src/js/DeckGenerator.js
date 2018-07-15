@@ -14,12 +14,12 @@ let deckGenerator = (function(){
 
     let upperLimit =  availableDecks[deckName].count;
     let urlPrefix = `images/${deckName}/`;
-    let halfDeck = [];
+
     for(let i = 0; i < count/2; i++) {
       let num = Math.floor(Math.random() * upperLimit) + 1;
       const url = `${urlPrefix}${num.toString().padStart(4, "0")}.svg`;
       let card = new cards.Card(url, cards.STATE_CLOSED, num);
-      halfDeck.push(card);
+      yield card;
       yield card;
     }
   }
