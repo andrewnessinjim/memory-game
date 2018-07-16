@@ -1,4 +1,10 @@
 /*Set margin and padding to zero, to avoid suspicious free spaces creeping up later*/
+body {
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+}
+
 body,
 html,
 ul,

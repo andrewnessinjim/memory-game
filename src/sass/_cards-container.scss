@@ -1,0 +1,18 @@
+.card {
+  width: 100px;
+  height: 100px;
+  border: 1px solid black;
+  box-sizing: border-box;
+  margin: 4px 0;
+}
+
+.card:hover {
+  cursor: pointer;
+  background-color: rgba(28, 134, 134, 0.3);
+}
+
+.cards-container{
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+}
