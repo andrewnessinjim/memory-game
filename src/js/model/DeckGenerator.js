@@ -1,5 +1,6 @@
 let deckGenerator = (function(){
   const DECK_MOBILE_ICONS = "mobile_icons";
+  const DECK_SIZE = 16;
 
   const availableDecks = {
     [DECK_MOBILE_ICONS]: {
@@ -13,7 +14,7 @@ let deckGenerator = (function(){
     }
 
     let upperLimit =  availableDecks[deckName].count;
-    let urlPrefix = `images/${deckName}/`;
+    let urlPrefix = `images/decks/${deckName}/`;
 
     for(let i = 0; i < count/2; i++) {
       let num = Math.floor(Math.random() * upperLimit) + 1;
@@ -26,6 +27,7 @@ let deckGenerator = (function(){
 
   return {
     DECK_MOBILE_ICONS: DECK_MOBILE_ICONS,
+    DECK_SIZE: DECK_SIZE,
     generator: generator
   }
 })();

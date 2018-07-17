@@ -16,6 +16,14 @@ let cards = (function() {
         this[_id] = id;
       }
 
+      getURL() {
+        return this[_url];
+      }
+
+      getId() {
+        return this[_id];
+      }
+
       setState(state) {
         this._state = state;
       }
