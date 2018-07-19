@@ -38,7 +38,7 @@ let gameState = (function() {
     }
 
     setCard(card, index) {
-      this.cards[_index] = card;
+      this.cards[index] = card;
       console.log("Dispatch card event");
     }
 
@@ -54,9 +54,9 @@ let gameState = (function() {
   function init() {
     let deck = [];
     for(let card of deckGenerator.generator(
-                      deckGenerator.DECK_MOBILE_ICONS,
-                      deckGenerator.DECK_SIZE)) {
-      deck.push(card);
+                    deckGenerator.DECK_MOBILE_ICONS,
+                    deckGenerator.DECK_SIZE)) {
+                      deck.push(card);
     }
     deck = util.shuffle(deck);
 

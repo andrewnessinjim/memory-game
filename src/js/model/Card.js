@@ -25,7 +25,11 @@ let cards = (function() {
       }
 
       setState(state) {
-        this._state = state;
+        this[_state] = state;
+      }
+
+      getState(){
+        return this[_state];
       }
     },
     STATE_OPEN: STATE_OPEN,

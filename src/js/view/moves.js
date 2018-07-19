@@ -1,6 +1,6 @@
 function initMovesListener() {
   gameState.getInstance().addEventListener('moves',function(event) {
-    let movesContainer = document.querySelector('.moves-container__moves-val');
+    let movesContainer = document.querySelector('.moves-val');
     movesContainer.textContent = event.detail.moves;
   })
 }
