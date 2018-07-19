@@ -1,7 +1,7 @@
 .card {
   width: 100px;
   height: 100px;
-  border: 1px solid black;
+  border: 2px groove darken($primary-color, 70%);
   box-sizing: border-box;
   margin: 4px 0;
   padding: 30px;
@@ -11,13 +11,20 @@
   background-repeat: no-repeat;
 }
 
+.card-closed {
+  background: radial-gradient(lighten($primary-color, 30%),darken($primary-color, 30%))
+}
 .card:hover {
   cursor: pointer;
-  background-color: rgba(28, 134, 134, 0.3);
+  background: rgba(28, 134, 134, 0.3);
 }
 
 .cards-container{
   display: flex;
   flex-wrap: wrap;
-  justify-content: space-between;
+  justify-content: space-around;
+  background: radial-gradient(lighten($primary-color, 30%),lighten($primary-color, 20%));
+  padding: 10px;
+  border-radius: 10px;
+  box-shadow: 4px 4px 2px black;
 }
