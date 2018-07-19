@@ -45,6 +45,10 @@ let gameState = (function() {
     }
     deck = util.shuffle(deck);
 
+    for(let i = 0; i < deck.length; i++) {
+      deck[i].setIndex(i);
+    }
+
     return new GameState(0, 1, deck, 0);
   }
 

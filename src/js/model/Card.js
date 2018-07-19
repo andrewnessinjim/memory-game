@@ -7,6 +7,7 @@ let cards = (function() {
   let _url = Symbol('URL');
   let _state = Symbol('state');
   let _id = Symbol('id');
+  let _index = Symbol('index');
 
   return {
     Card: class Card {
@@ -22,6 +23,14 @@ let cards = (function() {
 
       getId() {
         return this[_id];
+      }
+
+      getIndex() {
+        return this[_index];
+      }
+
+      setIndex(index) {
+        this[_index] = index;
       }
 
       setState(state) {

@@ -9,6 +9,7 @@ function initializeCards() {
     const div = document.createElement('div');
     div.classList.add('card');
     div.setAttribute('card_id', card.getId());
+    div.setAttribute('card-index', card.getIndex());
     if(card.getState() === cards.STATE_CLOSED) {
       div.classList.add('card-closed');
     } else {
