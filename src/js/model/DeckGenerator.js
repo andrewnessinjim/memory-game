@@ -19,9 +19,10 @@ let deckGenerator = (function(){
     for(let i = 0; i < count/2; i++) {
       let num = Math.floor(Math.random() * upperLimit) + 1;
       const url = `${urlPrefix}${num.toString().padStart(4, '0')}.svg`;
-      let card = new cards.Card(url, cards.STATE_CLOSED, num);
-      yield card;
-      yield card;
+      let card1 = new cards.Card(url, cards.STATE_CLOSED, num);
+      let card2 = new cards.Card(url, cards.STATE_CLOSED, num);
+      yield card1;
+      yield card2;
     }
   }
 
