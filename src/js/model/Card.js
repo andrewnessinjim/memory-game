@@ -1,12 +1,12 @@
 let cards = (function() {
   const
-    STATE_OPEN= "state_open",
-    STATE_CLOSED= "state_closed",
-    STATE_WAITING= "state_waiting";
+    STATE_OPEN= 'state_open',
+    STATE_CLOSED= 'state_closed',
+    STATE_WAITING= 'state_waiting';
 
-  let _url = Symbol("URL");
-  let _state = Symbol("state");
-  let _id = Symbol("id");
+  let _url = Symbol('URL');
+  let _state = Symbol('state');
+  let _id = Symbol('id');
 
   return {
     Card: class Card {

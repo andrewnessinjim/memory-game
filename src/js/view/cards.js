@@ -18,7 +18,7 @@ function initializeCards() {
     return div;
   }
 
-  cardsContainer.addEventListener("click", function(event) {
-    controller.cardClicked(event.target.getAttribute("card_id"));
+  cardsContainer.addEventListener('click', function(event) {
+    controller.cardClicked(event.target.getAttribute('card_id'));
   });
 }

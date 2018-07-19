@@ -17,29 +17,29 @@ let gameState = (function() {
 
     setMoves(moves) {
       this[_moves] = moves;
-      let event = new Event("moves");
+      let event = new Event('moves');
       this.dispatchEvent(event);
     }
 
     incMoves() {
       this[_moves] += 1;
-      let event = new CustomEvent("moves", {detail: {moves: this[_moves]}});
+      let event = new CustomEvent('moves', {detail: {moves: this[_moves]}});
       this.dispatchEvent(event);
     }
 
     setStars(stars) {
       this[_stars] = stars;
-      console.log("Dispatch stars event");
+      console.log('Dispatch stars event');
     }
 
     setTimer(timerSeconds) {
       this[_timerSeconds] = timerSeconds;
-      console.log("Dispatch timer event");
+      console.log('Dispatch timer event');
     }
 
     setCard(card, index) {
       this.cards[index] = card;
-      console.log("Dispatch card event");
+      console.log('Dispatch card event');
     }
 
     setCards(cards) {
