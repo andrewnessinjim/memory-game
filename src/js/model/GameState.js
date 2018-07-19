@@ -15,12 +15,6 @@ let gameState = (function() {
       this[_timerSeconds] = timerSeconds;
     }
 
-    setMoves(moves) {
-      this[_moves] = moves;
-      let event = new Event('moves');
-      this.dispatchEvent(event);
-    }
-
     incMoves() {
       this[_moves] += 1;
       let event = new CustomEvent('moves', {detail: {moves: this[_moves]}});
@@ -35,15 +29,6 @@ let gameState = (function() {
     setTimer(timerSeconds) {
       this[_timerSeconds] = timerSeconds;
       console.log('Dispatch timer event');
-    }
-
-    setCard(card, index) {
-      this.cards[index] = card;
-      console.log('Dispatch card event');
-    }
-
-    setCards(cards) {
-      this[_cards] = cards;
     }
 
     getCards(){
