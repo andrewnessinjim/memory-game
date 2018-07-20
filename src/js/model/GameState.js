@@ -5,6 +5,7 @@ let gameState = (function() {
   let _stars = Symbol('stars');
   let _cards = Symbol('cards');
   let _timerSeconds = Symbol('timerSeconds');
+  let _waitingCard = Symbol('waitingCard');
 
   class GameState extends EventTarget {
     constructor(moves, stars, cards, timerSeconds) {
@@ -39,6 +40,21 @@ let gameState = (function() {
       this[_cards][index].setState(state);
       let cardStateEvent = new CustomEvent("state", {detail: {card: this[_cards][index]}});
       this.dispatchEvent(cardStateEvent);
+    }
+
+    setWaitingCard(card) {
+      card.setState(cards.STATE_WAITING);
+      this[_waitingCard] = card;
+      let cardStateEvent = new CustomEvent("state", {detail: {card: card}});
+      this.dispatchEvent(cardStateEvent);
+    }
+
+    getWaitingCard() {
+      return this[_waitingCard];
+    }
+
+    getCard(cardIndex) {
+      return this[_cards][cardIndex];
     }
   }
 

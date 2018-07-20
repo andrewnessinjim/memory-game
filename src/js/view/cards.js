@@ -16,7 +16,7 @@ function initializeCards() {
   }
 
   cardsContainer.addEventListener('click', function(event) {
-    controller.cardClicked(event.target.getAttribute('card_id'));
+    controller.cardClicked(event.target.getAttribute('card-index'));
     console.log(event.target);
   });
 
