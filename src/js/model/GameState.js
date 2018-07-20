@@ -43,10 +43,13 @@ let gameState = (function() {
     }
 
     setWaitingCard(card) {
-      card.setState(cards.STATE_WAITING);
       this[_waitingCard] = card;
-      let cardStateEvent = new CustomEvent("state", {detail: {card: card}});
-      this.dispatchEvent(cardStateEvent);
+
+      if(card) {
+        card.setState(cards.STATE_WAITING);
+        let cardStateEvent = new CustomEvent("state", {detail: {card: card}});
+        this.dispatchEvent(cardStateEvent);
+      }
     }
 
     getWaitingCard() {
