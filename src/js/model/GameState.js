@@ -34,6 +34,12 @@ let gameState = (function() {
     getCards(){
       return this[_cards];
     }
+
+    setCardState(index, state) {
+      this[_cards][index].setState(state);
+      let cardStateEvent = new CustomEvent("state", {detail: {card: this[_cards][index]}});
+      this.dispatchEvent(cardStateEvent);
+    }
   }
 
   function init() {
