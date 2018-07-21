@@ -7,10 +7,10 @@ let gameEngine = {
   cardClicked: function(cardIndex) {
     let gState = gameState.getInstance();
     let waitingCard = gState.getWaitingCard();
+    let selectedCard = gState.getCard(cardIndex);
 
     if(waitingCard) { //A card is already open. We try to match it now.
       gState.incMoves();
-      let selectedCard = gState.getCard(cardIndex);
 
       if(selectedCard.getId() === waitingCard.getId()) { //User matched a pair
 
@@ -31,7 +31,7 @@ let gameEngine = {
       }
     } else { //This is the first card of the pair the user is trying to match
 
-      gState.setWaitingCard(gState.getCard(cardIndex));
+      gState.setWaitingCard(selectedCard);
       controller.idle = true;
     }
   }
