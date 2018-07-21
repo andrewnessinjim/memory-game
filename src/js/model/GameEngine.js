@@ -24,7 +24,6 @@ let gameEngine = {
         gState.setCardState(waitingCard.getIndex(), cards.STATE_OPEN);
         gState.setCardState(selectedCard.getIndex(), cards.STATE_OPEN);
         gState.setWaitingCard(null);
-        controller.idle = true;
       } else { //User failed to match a pair
 
         gState.setCardState(selectedCard.getIndex(), cards.STATE_OPEN);
@@ -33,13 +32,11 @@ let gameEngine = {
           gState.setCardState(selectedCard.getIndex(), cards.STATE_CLOSED);
           gState.setCardState(waitingCard.getIndex(), cards.STATE_CLOSED);
           gState.setWaitingCard(null);
-          controller.idle = true;
         }, 2000);
       }
     } else { //This is the first card of the pair the user is trying to match
 
       gState.setWaitingCard(selectedCard);
-      controller.idle = true;
     }
   },
   reset: function() {
