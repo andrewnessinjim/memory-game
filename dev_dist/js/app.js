@@ -11,11 +11,18 @@ let controller = {
   idle: true
 }
 document.addEventListener('DOMContentLoaded', function() {
-  initializeCards();
-  starsView.initializeStars();
-  timerView.initializeTimer();
-  initMovesListener();
+  initCardsView();
+  initStarsView();
+  initTimerView();
+  initMovesView();
 });
+/*
+cards object exposes a Card class which holds data related to a single card.
+It also exposes 3 constants, to be used as the values for the state of the card:
+  - STATE_OPEN -> The card is visible to the user.
+  - STATE_CLOSED -> The card is not visible to the user.
+  - STATE_WAITING -> The card is visible to the user, but may get closed later.
+ */
 let cards = (function() {
   const
     STATE_OPEN= 'state_open',
@@ -64,7 +71,12 @@ let cards = (function() {
     STATE_WAITING: STATE_WAITING
   }
 })();
+/*
+deckGenerator object exposes a generator function that can be used to generate cards.
+It also exposes some constants.
+*/
 let deckGenerator = (function(){
+  //Only one deck and one deck size supported for now. Can be parameterized later.
   const DECK_MOBILE_ICONS = 'mobile_icons';
   const DECK_SIZE = 16;
 
@@ -75,13 +87,18 @@ let deckGenerator = (function(){
   };
 
   function* generator(deckName, count) {
+    //Cards are matched in pairs. So we need even number of cards
     if(count % 2 != 0) {
       throw `Cannot create deck with ${count} cards. Only even numbered decks can be created`;
     }
 
+    //Total number of cards in the deck
     let upperLimit =  availableDecks[deckName].count;
+
+    //All cards of a deck are present in deckName directory
     let urlPrefix = `images/decks/${deckName}/`;
 
+    //Each loop will generate 2 cards with same image. So looping half the number of cards
     for(let i = 0; i < count/2; i++) {
       let num = Math.floor(Math.random() * upperLimit) + 1;
       const url = `${urlPrefix}${num.toString().padStart(4, '0')}.svg`;
@@ -98,36 +115,55 @@ let deckGenerator = (function(){
     generator: generator
   }
 })();
+/*
+The gameEngine receives calls from the controller, and decides how to change the
+state of the game. The state of the game is implemented a a singleton object which
+can be accessed by gameState.getInstance()
+*/
 let gameEngine = {
   cardClicked: function(cardIndex) {
-    let localGameState = gameState.getInstance();
-    let waitingCard = localGameState.getWaitingCard();
-    if(waitingCard) {
-      localGameState.incMoves();
-      let selectedCard = localGameState.getCard(cardIndex);
-      if(selectedCard.getId() === waitingCard.getId()) {
-        localGameState.setCardState(waitingCard.getIndex(), cards.STATE_OPEN);
-        localGameState.setCardState(selectedCard.getIndex(), cards.STATE_OPEN);
-        localGameState.setWaitingCard(null);
+    let gState = gameState.getInstance();
+    let waitingCard = gState.getWaitingCard();
+
+    if(waitingCard) { //A card is already open. We try to match it now.
+      gState.incMoves();
+      let selectedCard = gState.getCard(cardIndex);
+
+      if(selectedCard.getId() === waitingCard.getId()) { //User matched a pair
+
+        gState.setCardState(waitingCard.getIndex(), cards.STATE_OPEN);
+        gState.setCardState(selectedCard.getIndex(), cards.STATE_OPEN);
+        gState.setWaitingCard(null);
         controller.idle = true;
-      } else {
-        localGameState.setCardState(selectedCard.getIndex(), cards.STATE_OPEN);
+      } else { //User failed to match a pair
+
+        gState.setCardState(selectedCard.getIndex(), cards.STATE_OPEN);
         setTimeout(function() {
-          localGameState.setCardState(selectedCard.getIndex(), cards.STATE_CLOSED);
-          localGameState.setCardState(waitingCard.getIndex(), cards.STATE_CLOSED);
-          localGameState.setWaitingCard(null);
+
+          gState.setCardState(selectedCard.getIndex(), cards.STATE_CLOSED);
+          gState.setCardState(waitingCard.getIndex(), cards.STATE_CLOSED);
+          gState.setWaitingCard(null);
           controller.idle = true;
         }, 2000);
       }
-    } else {
-      localGameState.setWaitingCard(localGameState.getCard(cardIndex));
+    } else { //This is the first card of the pair the user is trying to match
+
+      gState.setWaitingCard(gState.getCard(cardIndex));
       controller.idle = true;
     }
   }
 }
+/*
+gameState object is created from the GameState class as a singleton object.
+All the game state is stored in this object, and whenever any setter methods
+are called on this object, it emits events to notify all listeners. The listeners
+are typically UI components which update themselves on receiving events from
+gameState object.
+*/
 let gameState = (function() {
   let instance;
 
+  //Symbols for implementing private variables.
   let _moves = Symbol('moves');
   let _stars = Symbol('stars');
   let _cards = Symbol('cards');
@@ -249,7 +285,7 @@ let util = {
     return array;
   }
 }
-function initializeCards() {
+function initCardsView() {
   const cardsContainer = document.querySelector('.cards-container');
 
   for(let card of gameState.getInstance().getCards()) {
@@ -267,8 +303,10 @@ function initializeCards() {
   }
 
   cardsContainer.addEventListener('click', function(event) {
-    controller.cardClicked(event.target.getAttribute('card-index'));
-    console.log(event.target);
+    const cardIndex = event.target.getAttribute('card-index');
+    if(cardIndex) {
+      controller.cardClicked(cardIndex);
+    }
   });
 
   gameState.getInstance().addEventListener('state', function(event) {
@@ -290,19 +328,15 @@ function initializeCards() {
     }
   }
 }
-function initMovesListener() {
+function initMovesView() {
   gameState.getInstance().addEventListener('moves',function(event) {
     let movesContainer = document.querySelector('.moves-val');
     movesContainer.textContent = event.detail.moves;
   })
 }
-let starsView = {
-  initializeStars: function() {
-    gameState.getInstance().setStars(1);
-  }
+function initStarsView() {
+  gameState.getInstance().setStars(1);
 }
-let timerView = {
-  initializeTimer: function() {
-    gameState.getInstance().setTimer(0);
-  }
+function initTimerView() {
+  gameState.getInstance().setTimer(0);
 }
