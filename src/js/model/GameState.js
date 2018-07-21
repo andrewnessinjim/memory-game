@@ -1,6 +1,14 @@
+/*
+gameState object is created from the GameState class as a singleton object.
+All the game state is stored in this object, and whenever any setter methods
+are called on this object, it emits events to notify all listeners. The listeners
+are typically UI components which update themselves on receiving events from
+gameState object.
+*/
 let gameState = (function() {
   let instance;
 
+  //Symbols for implementing private variables.
   let _moves = Symbol('moves');
   let _stars = Symbol('stars');
   let _cards = Symbol('cards');
