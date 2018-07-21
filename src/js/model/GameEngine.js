@@ -41,5 +41,8 @@ let gameEngine = {
   },
   reset: function() {
     gameState.getInstance().reset();
+  },
+  incTimer: function() {
+    gameState.getInstance().incTimerSeconds();
   }
 }

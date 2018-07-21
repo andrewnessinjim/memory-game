@@ -5,7 +5,7 @@ function initTimerView() {
   drawTime(gState.getTimerSeconds());
 
   const interval = setInterval(function() {
-    gameState.getInstance().incTimerSeconds();
+    controller.incTimer()
   }, 1000);
 
   gState.addEventListener('timer', function(event) {
