@@ -5,27 +5,33 @@ can be accessed by gameState.getInstance()
 */
 let gameEngine = {
   cardClicked: function(cardIndex) {
-    let localGameState = gameState.getInstance();
-    let waitingCard = localGameState.getWaitingCard();
+    let gState = gameState.getInstance();
+    let waitingCard = gState.getWaitingCard();
+
     if(waitingCard) { //A card is already open. We try to match it now.
-      localGameState.incMoves();
-      let selectedCard = localGameState.getCard(cardIndex);
+      gState.incMoves();
+      let selectedCard = gState.getCard(cardIndex);
+
       if(selectedCard.getId() === waitingCard.getId()) { //User matched a pair
-        localGameState.setCardState(waitingCard.getIndex(), cards.STATE_OPEN);
-        localGameState.setCardState(selectedCard.getIndex(), cards.STATE_OPEN);
-        localGameState.setWaitingCard(null);
+
+        gState.setCardState(waitingCard.getIndex(), cards.STATE_OPEN);
+        gState.setCardState(selectedCard.getIndex(), cards.STATE_OPEN);
+        gState.setWaitingCard(null);
         controller.idle = true;
       } else { //User failed to match a pair
-        localGameState.setCardState(selectedCard.getIndex(), cards.STATE_OPEN);
+
+        gState.setCardState(selectedCard.getIndex(), cards.STATE_OPEN);
         setTimeout(function() {
-          localGameState.setCardState(selectedCard.getIndex(), cards.STATE_CLOSED);
-          localGameState.setCardState(waitingCard.getIndex(), cards.STATE_CLOSED);
-          localGameState.setWaitingCard(null);
+
+          gState.setCardState(selectedCard.getIndex(), cards.STATE_CLOSED);
+          gState.setCardState(waitingCard.getIndex(), cards.STATE_CLOSED);
+          gState.setWaitingCard(null);
           controller.idle = true;
         }, 2000);
       }
     } else { //This is the first card of the pair the user is trying to match
-      localGameState.setWaitingCard(localGameState.getCard(cardIndex));
+
+      gState.setWaitingCard(gState.getCard(cardIndex));
       controller.idle = true;
     }
   }
