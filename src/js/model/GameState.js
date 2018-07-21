@@ -17,6 +17,7 @@ let gameState = (function() {
   let _dispatchMovesEvent = Symbol('dispatchMovesEvent');
   let _dispatchStarsEvent = Symbol('dispatchStarsEvent');
   let _dispatchResetEvent = Symbol('dispatchResetEvent');
+  let _dispatchTimerEvent = Symbol('dispatchTimerEvent');
 
   class GameState extends EventTarget {
     constructor(moves, stars, cards, timerSeconds) {
@@ -41,10 +42,20 @@ let gameState = (function() {
       let resetEvent = new CustomEvent('reset', {
         detail: {
           moves: this[_moves],
-          stars: this[_stars]
+          stars: this[_stars],
+          seconds: this[_timerSeconds]
         }
       });
       this.dispatchEvent(resetEvent);
+    }
+
+    [_dispatchTimerEvent]() {
+      let timerEvent = new CustomEvent('timer', {
+        detail: {
+          seconds: this[_timerSeconds]
+        }
+      });
+      this.dispatchEvent(timerEvent);
     }
 
     incMoves() {
@@ -57,13 +68,17 @@ let gameState = (function() {
       console.log('Dispatch stars event');
     }
 
-    setTimer(timerSeconds) {
-      this[_timerSeconds] = timerSeconds;
-      console.log('Dispatch timer event');
+    incTimerSeconds() {
+      this[_timerSeconds] += 1;
+      this[_dispatchTimerEvent]();
     }
 
     getCards(){
       return this[_cards];
+    }
+
+    getTimerSeconds() {
+      return this[_timerSeconds];
     }
 
     setCardState(index, state) {
