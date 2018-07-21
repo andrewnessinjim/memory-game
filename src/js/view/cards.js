@@ -16,8 +16,10 @@ function initializeCards() {
   }
 
   cardsContainer.addEventListener('click', function(event) {
-    controller.cardClicked(event.target.getAttribute('card-index'));
-    console.log(event.target);
+    const cardIndex = event.target.getAttribute('card-index');
+    if(cardIndex) {
+      controller.cardClicked(cardIndex);
+    }
   });
 
   gameState.getInstance().addEventListener('state', function(event) {
