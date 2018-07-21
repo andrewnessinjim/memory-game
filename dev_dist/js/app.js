@@ -5,6 +5,12 @@ let controller = {
       gameEngine.cardClicked(cardId);
     }
   },
+  reset: function() {
+    if(this.idle) {
+      this.idle =false;
+      gameEngine.reset();
+    }
+  },
   /* Controller will set this flag to false when calling the game engine.
    * Game Engine will set this flag to true before returning.
    */
@@ -15,6 +21,7 @@ document.addEventListener('DOMContentLoaded', function() {
   initStarsView();
   initTimerView();
   initMovesView();
+  initResetButton();
 });
 /*
 cards object exposes a Card class which holds data related to a single card.
@@ -124,10 +131,17 @@ let gameEngine = {
   cardClicked: function(cardIndex) {
     let gState = gameState.getInstance();
     let waitingCard = gState.getWaitingCard();
+    let selectedCard = gState.getCard(cardIndex);
+
+    if(selectedCard.getState() === cards.STATE_OPEN ||
+        selectedCard.getState() === cards.STATE_WAITING) {
+          //User clicked on already opened card, ignore
+          controller.idle = true;
+          return;
+    }
 
     if(waitingCard) { //A card is already open. We try to match it now.
       gState.incMoves();
-      let selectedCard = gState.getCard(cardIndex);
 
       if(selectedCard.getId() === waitingCard.getId()) { //User matched a pair
 
@@ -148,9 +162,12 @@ let gameEngine = {
       }
     } else { //This is the first card of the pair the user is trying to match
 
-      gState.setWaitingCard(gState.getCard(cardIndex));
+      gState.setWaitingCard(selectedCard);
       controller.idle = true;
     }
+  },
+  reset: function() {
+    gameState.getInstance().reset();
   }
 }
 /*
@@ -169,6 +186,9 @@ let gameState = (function() {
   let _cards = Symbol('cards');
   let _timerSeconds = Symbol('timerSeconds');
   let _waitingCard = Symbol('waitingCard');
+  let _dispatchMovesEvent = Symbol('dispatchMovesEvent');
+  let _dispatchStarsEvent = Symbol('dispatchStarsEvent');
+  let _dispatchResetEvent = Symbol('dispatchResetEvent');
 
   class GameState extends EventTarget {
     constructor(moves, stars, cards, timerSeconds) {
@@ -179,10 +199,29 @@ let gameState = (function() {
       this[_timerSeconds] = timerSeconds;
     }
 
-    incMoves() {
-      this[_moves] += 1;
+    [_dispatchMovesEvent]() {
       let event = new CustomEvent('moves', {detail: {moves: this[_moves]}});
       this.dispatchEvent(event);
+    }
+
+    [_dispatchStarsEvent]() {
+      let event = new CustomEvent('stars', {detail: {stars: this[_stars]}});
+      this.dispatchEvent(event);
+    }
+
+    [_dispatchResetEvent]() {
+      let resetEvent = new CustomEvent('reset', {
+        detail: {
+          moves: this[_moves],
+          stars: this[_stars]
+        }
+      });
+      this.dispatchEvent(resetEvent);
+    }
+
+    incMoves() {
+      this[_moves] += 1;
+      this[_dispatchMovesEvent]();
     }
 
     setStars(stars) {
@@ -222,22 +261,31 @@ let gameState = (function() {
     getCard(cardIndex) {
       return this[_cards][cardIndex];
     }
+
+    reset() {
+      this[_moves] = 0;
+      this[_stars] = 1;
+      this[_timerSeconds] = 0;
+      this[_cards] = generateDeck();
+      this[_dispatchResetEvent]();
+    }
   }
 
   function init() {
+    let deck = generateDeck();
+    return new GameState(0, 1, deck, 0);
+  }
+
+  function generateDeck() {
     let deck = [];
-    for(let card of deckGenerator.generator(
-                    deckGenerator.DECK_MOBILE_ICONS,
-                    deckGenerator.DECK_SIZE)) {
-                      deck.push(card);
+    for (let card of deckGenerator.generator(deckGenerator.DECK_MOBILE_ICONS, deckGenerator.DECK_SIZE)) {
+      deck.push(card);
     }
     deck = util.shuffle(deck);
-
-    for(let i = 0; i < deck.length; i++) {
+    for (let i = 0; i < deck.length; i++) {
       deck[i].setIndex(i);
     }
-
-    return new GameState(0, 1, deck, 0);
+    return deck;
   }
 
   return {
@@ -249,6 +297,82 @@ let gameState = (function() {
     }
   }
 })();
+function initCardsView() {
+  const cardsContainer = document.querySelector('.cards-container');
+
+  drawCards();
+
+  cardsContainer.addEventListener('click', function(event) {
+    const cardIndex = event.target.getAttribute('card-index');
+    if(cardIndex) {
+      controller.cardClicked(cardIndex);
+    }
+  });
+
+  gameState.getInstance().addEventListener('state', function(event) {
+    let card = event.detail.card;
+    let div = document.querySelector(`.card[card-index="${card.getIndex()}"]`)
+    setCardState(div, card);
+  })
+
+  gameState.getInstance().addEventListener('reset', function() {
+    while(cardsContainer.firstChild) {
+      cardsContainer.removeChild(cardsContainer.firstChild);
+    }
+    drawCards();
+    controller.idle = true;
+  })
+
+  function drawCards() {
+    for (let card of gameState.getInstance().getCards()) {
+      cardsContainer.appendChild(createCardDiv(card));
+    }
+    function createCardDiv(card) {
+      const div = document.createElement('div');
+      div.classList.add('card');
+      div.setAttribute('card_id', card.getId());
+      div.setAttribute('card-index', card.getIndex());
+      setCardState(div, card);
+      return div;
+    }
+  }
+
+  function setCardState(div, card) {
+    div.classList.remove('card-closed');
+    if(card.getState() === cards.STATE_CLOSED) {
+      div.classList.add('card-closed');
+      div.style.backgroundImage = '';
+    } else if (
+      card.getState() === cards.STATE_OPEN
+      || card.getState() === cards.STATE_WAITING
+    ){
+      div.style.backgroundImage = `url(${card.getURL()})`;
+    }
+  }
+}
+function initMovesView() {
+  let movesContainer = document.querySelector('.moves-val');
+
+  gameState.getInstance().addEventListener('moves',function(event) {
+    movesContainer.textContent = event.detail.moves;
+  })
+
+  gameState.getInstance().addEventListener('reset',function() {
+    movesContainer.textContent = event.detail.moves;
+  })
+}
+function initResetButton() {
+  let resetButton = document.querySelector('.controls__reset');
+  resetButton.addEventListener('click', function() {
+    controller.reset();
+  });
+}
+function initStarsView() {
+  gameState.getInstance().setStars(1);
+}
+function initTimerView() {
+  gameState.getInstance().setTimer(0);
+}
 if (!String.prototype.padStart) {
   String.prototype.padStart = function padStart(targetLength,padString) {
       targetLength = targetLength>>0; //truncate if number or convert non-number to 0;
@@ -284,59 +408,4 @@ let util = {
   
     return array;
   }
-}
-function initCardsView() {
-  const cardsContainer = document.querySelector('.cards-container');
-
-  for(let card of gameState.getInstance().getCards()) {
-    cardsContainer.appendChild(createCardDiv(card));
-  }
-
-  function createCardDiv(card){
-    const div = document.createElement('div');
-    div.classList.add('card');
-    div.setAttribute('card_id', card.getId());
-    div.setAttribute('card-index', card.getIndex());
-    setCardState(div, card);
-
-    return div;
-  }
-
-  cardsContainer.addEventListener('click', function(event) {
-    const cardIndex = event.target.getAttribute('card-index');
-    if(cardIndex) {
-      controller.cardClicked(cardIndex);
-    }
-  });
-
-  gameState.getInstance().addEventListener('state', function(event) {
-    let card = event.detail.card;
-    let div = document.querySelector(`.card[card-index="${card.getIndex()}"]`)
-    setCardState(div, card);
-  })
-
-  function setCardState(div, card) {
-    div.classList.remove('card-closed');
-    if(card.getState() === cards.STATE_CLOSED) {
-      div.classList.add('card-closed');
-      div.style.backgroundImage = '';
-    } else if (
-      card.getState() === cards.STATE_OPEN
-      || card.getState() === cards.STATE_WAITING
-    ){
-      div.style.backgroundImage = `url(${card.getURL()})`;
-    }
-  }
-}
-function initMovesView() {
-  gameState.getInstance().addEventListener('moves',function(event) {
-    let movesContainer = document.querySelector('.moves-val');
-    movesContainer.textContent = event.detail.moves;
-  })
-}
-function initStarsView() {
-  gameState.getInstance().setStars(1);
-}
-function initTimerView() {
-  gameState.getInstance().setTimer(0);
 }
