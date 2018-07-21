@@ -37,9 +37,15 @@ let gameEngine = (function() {
       }
     }
 
-    let stars = (timerScore * timerWeightage) + (movesScore * movesWeightage);
-    gState.setStars(stars);
+    let stars = 0;
+    if(timerScore >= 0) {
+      stars += (timerScore * timerWeightage);
+    }
 
+    if(movesScore >= 0) {
+      stars += (movesScore * movesWeightage);
+    }
+    gState.setStars(stars);
   };
 
   return {
