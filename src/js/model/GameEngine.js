@@ -41,5 +41,8 @@ let gameEngine = {
       gState.setWaitingCard(selectedCard);
       controller.idle = true;
     }
+  },
+  reset: function() {
+    gameState.getInstance().reset();
   }
 }

@@ -1,19 +1,7 @@
 function initCardsView() {
   const cardsContainer = document.querySelector('.cards-container');
 
-  for(let card of gameState.getInstance().getCards()) {
-    cardsContainer.appendChild(createCardDiv(card));
-  }
-
-  function createCardDiv(card){
-    const div = document.createElement('div');
-    div.classList.add('card');
-    div.setAttribute('card_id', card.getId());
-    div.setAttribute('card-index', card.getIndex());
-    setCardState(div, card);
-
-    return div;
-  }
+  drawCards();
 
   cardsContainer.addEventListener('click', function(event) {
     const cardIndex = event.target.getAttribute('card-index');
@@ -27,6 +15,28 @@ function initCardsView() {
     let div = document.querySelector(`.card[card-index="${card.getIndex()}"]`)
     setCardState(div, card);
   })
+
+  gameState.getInstance().addEventListener('reset', function() {
+    while(cardsContainer.firstChild) {
+      cardsContainer.removeChild(cardsContainer.firstChild);
+    }
+    drawCards();
+    controller.idle = true;
+  })
+
+  function drawCards() {
+    for (let card of gameState.getInstance().getCards()) {
+      cardsContainer.appendChild(createCardDiv(card));
+    }
+    function createCardDiv(card) {
+      const div = document.createElement('div');
+      div.classList.add('card');
+      div.setAttribute('card_id', card.getId());
+      div.setAttribute('card-index', card.getIndex());
+      setCardState(div, card);
+      return div;
+    }
+  }
 
   function setCardState(div, card) {
     div.classList.remove('card-closed');

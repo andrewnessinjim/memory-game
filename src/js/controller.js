@@ -5,6 +5,12 @@ let controller = {
       gameEngine.cardClicked(cardId);
     }
   },
+  reset: function() {
+    if(this.idle) {
+      this.idle =false;
+      gameEngine.reset();
+    }
+  },
   /* Controller will set this flag to false when calling the game engine.
    * Game Engine will set this flag to true before returning.
    */

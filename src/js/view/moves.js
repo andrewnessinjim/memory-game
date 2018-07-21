@@ -1,6 +1,11 @@
 function initMovesView() {
+  let movesContainer = document.querySelector('.moves-val');
+
   gameState.getInstance().addEventListener('moves',function(event) {
-    let movesContainer = document.querySelector('.moves-val');
+    movesContainer.textContent = event.detail.moves;
+  })
+
+  gameState.getInstance().addEventListener('reset',function() {
     movesContainer.textContent = event.detail.moves;
   })
 }

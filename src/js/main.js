@@ -3,4 +3,5 @@ document.addEventListener('DOMContentLoaded', function() {
   initStarsView();
   initTimerView();
   initMovesView();
+  initResetButton();
 });

@@ -14,6 +14,9 @@ let gameState = (function() {
   let _cards = Symbol('cards');
   let _timerSeconds = Symbol('timerSeconds');
   let _waitingCard = Symbol('waitingCard');
+  let _dispatchMovesEvent = Symbol('dispatchMovesEvent');
+  let _dispatchStarsEvent = Symbol('dispatchStarsEvent');
+  let _dispatchResetEvent = Symbol('dispatchResetEvent');
 
   class GameState extends EventTarget {
     constructor(moves, stars, cards, timerSeconds) {
@@ -24,10 +27,29 @@ let gameState = (function() {
       this[_timerSeconds] = timerSeconds;
     }
 
-    incMoves() {
-      this[_moves] += 1;
+    [_dispatchMovesEvent]() {
       let event = new CustomEvent('moves', {detail: {moves: this[_moves]}});
       this.dispatchEvent(event);
+    }
+
+    [_dispatchStarsEvent]() {
+      let event = new CustomEvent('stars', {detail: {stars: this[_stars]}});
+      this.dispatchEvent(event);
+    }
+
+    [_dispatchResetEvent]() {
+      let resetEvent = new CustomEvent('reset', {
+        detail: {
+          moves: this[_moves],
+          stars: this[_stars]
+        }
+      });
+      this.dispatchEvent(resetEvent);
+    }
+
+    incMoves() {
+      this[_moves] += 1;
+      this[_dispatchMovesEvent]();
     }
 
     setStars(stars) {
@@ -67,22 +89,31 @@ let gameState = (function() {
     getCard(cardIndex) {
       return this[_cards][cardIndex];
     }
+
+    reset() {
+      this[_moves] = 0;
+      this[_stars] = 1;
+      this[_timerSeconds] = 0;
+      this[_cards] = generateDeck();
+      this[_dispatchResetEvent]();
+    }
   }
 
   function init() {
+    let deck = generateDeck();
+    return new GameState(0, 1, deck, 0);
+  }
+
+  function generateDeck() {
     let deck = [];
-    for(let card of deckGenerator.generator(
-                    deckGenerator.DECK_MOBILE_ICONS,
-                    deckGenerator.DECK_SIZE)) {
-                      deck.push(card);
+    for (let card of deckGenerator.generator(deckGenerator.DECK_MOBILE_ICONS, deckGenerator.DECK_SIZE)) {
+      deck.push(card);
     }
     deck = util.shuffle(deck);
-
-    for(let i = 0; i < deck.length; i++) {
+    for (let i = 0; i < deck.length; i++) {
       deck[i].setIndex(i);
     }
-
-    return new GameState(0, 1, deck, 0);
+    return deck;
   }
 
   return {
