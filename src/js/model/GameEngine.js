@@ -9,6 +9,13 @@ let gameEngine = {
     let waitingCard = gState.getWaitingCard();
     let selectedCard = gState.getCard(cardIndex);
 
+    if(selectedCard.getState() === cards.STATE_OPEN ||
+        selectedCard.getState() === cards.STATE_WAITING) {
+          //User clicked on already opened card, ignore
+          controller.idle = true;
+          return;
+    }
+
     if(waitingCard) { //A card is already open. We try to match it now.
       gState.incMoves();
 
