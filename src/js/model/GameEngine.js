@@ -64,6 +64,10 @@ let gameEngine = (function() {
           gState.setCardState(waitingCard.getIndex(), cards.STATE_OPEN);
           gState.setCardState(selectedCard.getIndex(), cards.STATE_OPEN);
           gState.setWaitingCard(null);
+          gState.incMatches();
+          if(gState.getMaxMatches() === gState.getCurrentMatches()) {
+            gState.win();
+          }
           controller.idle = true;
         } else { //User failed to match a pair
 

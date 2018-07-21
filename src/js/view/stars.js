@@ -5,4 +5,8 @@ function initStarsView() {
   gameState.getInstance().addEventListener('stars', function(event) {
     starsVal.textContent = event.detail.stars;
   })
+
+  gameState.getInstance().addEventListener('win', function(event) {
+    starsVal.textContent = event.detail.stars;
+  })
 }

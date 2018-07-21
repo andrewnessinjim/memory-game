@@ -4,7 +4,7 @@ function initTimerView() {
 
   drawTime(gState.getTimerSeconds());
 
-  const interval = setInterval(function() {
+  let timerInterval = setInterval(function() {
     controller.incTimer()
   }, 1000);
 
@@ -14,6 +14,14 @@ function initTimerView() {
 
   gState.addEventListener('reset', function(event) {
     drawTime(event.detail.seconds);
+    clearInterval(timerInterval);
+    timerInterval = setInterval(function() {
+      controller.incTimer()
+    }, 1000);
+  });
+
+  gState.addEventListener('win', function(){
+    clearInterval(timerInterval);
   })
 
   function drawTime(seconds) {

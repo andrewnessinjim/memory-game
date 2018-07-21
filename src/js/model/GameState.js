@@ -14,10 +14,14 @@ let gameState = (function() {
   let _cards = Symbol('cards');
   let _timerSeconds = Symbol('timerSeconds');
   let _waitingCard = Symbol('waitingCard');
+  let _currentMatches = Symbol('currentMatches');
+  let _maxMatches = Symbol('maxMatches');
+  let _hasWon = Symbol('hasWon');
   let _dispatchMovesEvent = Symbol('dispatchMovesEvent');
   let _dispatchStarsEvent = Symbol('dispatchStarsEvent');
   let _dispatchResetEvent = Symbol('dispatchResetEvent');
   let _dispatchTimerEvent = Symbol('dispatchTimerEvent');
+  let _dispatchWinEvent = Symbol('dispatchWinEvent');
 
   class GameState extends EventTarget {
     constructor(moves, stars, cards, timerSeconds) {
@@ -26,6 +30,9 @@ let gameState = (function() {
       this[_stars] = stars,
       this[_cards] = cards;
       this[_timerSeconds] = timerSeconds;
+      this[_currentMatches] = 0;
+      this[_maxMatches] = cards.length / 2;
+      this[_hasWon] = false;
     }
 
     [_dispatchMovesEvent]() {
@@ -56,6 +63,20 @@ let gameState = (function() {
         }
       });
       this.dispatchEvent(timerEvent);
+    }
+
+    [_dispatchWinEvent]() {
+      let winEvent = new Event('win');
+      this.dispatchEvent(winEvent);
+    }
+
+    win() {
+      this[_hasWon] = true;
+      this[_dispatchWinEvent]();
+    }
+
+    incMatches() {
+      this[_currentMatches] += 1;
     }
 
     incMoves() {
@@ -113,11 +134,22 @@ let gameState = (function() {
       return this[_cards][cardIndex];
     }
 
+    getCurrentMatches() {
+      return this[_currentMatches];
+    }
+
+    getMaxMatches() {
+      return this[_maxMatches];
+    }
+
     reset() {
       this[_moves] = 0;
       this[_stars] = 1;
       this[_timerSeconds] = 0;
       this[_cards] = generateDeck();
+      this[_currentMatches] = 0;
+      this[_maxMatches] = this[_cards].length / 2;
+      this[_hasWon] = false;
       this[_dispatchResetEvent]();
     }
   }
