@@ -28,7 +28,7 @@ let gameEngine = (function() {
     }
 
     let timerScore;
-    if(timerSeconds < (2 * deckSize)) {
+    if(timerSeconds < (1 * deckSize)) {
       timerScore = 1;
     } else {
       timerScore = 1 - timerPenaltyFactor;
@@ -74,7 +74,7 @@ let gameEngine = (function() {
             gState.setCardState(waitingCard.getIndex(), cards.STATE_CLOSED);
             gState.setWaitingCard(null);
             controller.idle = true;
-          }, 2000);
+          }, 1000);
         }
       } else { //This is the first card of the pair the user is trying to match
 
