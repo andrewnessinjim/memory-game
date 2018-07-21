@@ -14,7 +14,6 @@ function initCardsView() {
     let card = event.detail.card;
     let div = document.querySelector(`.card[card-index="${card.getIndex()}"]`)
     setCardState(div, card);
-    controller.idle = true;
   })
 
   gameState.getInstance().addEventListener('reset', function() {
