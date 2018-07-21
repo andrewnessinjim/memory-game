@@ -1,4 +1,4 @@
-function initializeCards() {
+function initCardsView() {
   const cardsContainer = document.querySelector('.cards-container');
 
   for(let card of gameState.getInstance().getCards()) {

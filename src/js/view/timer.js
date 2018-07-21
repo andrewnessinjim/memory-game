@@ -1,5 +1,3 @@
-let timerView = {
-  initializeTimer: function() {
-    gameState.getInstance().setTimer(0);
-  }
+function initTimerView() {
+  gameState.getInstance().setTimer(0);
 }

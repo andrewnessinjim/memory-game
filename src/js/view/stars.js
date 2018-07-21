@@ -1,5 +1,3 @@
-let starsView = {
-  initializeStars: function() {
-    gameState.getInstance().setStars(1);
-  }
+function initStarsView() {
+  gameState.getInstance().setStars(1);
 }

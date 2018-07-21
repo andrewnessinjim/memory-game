@@ -1,6 +1,6 @@
 document.addEventListener('DOMContentLoaded', function() {
-  initializeCards();
-  starsView.initializeStars();
-  timerView.initializeTimer();
-  initMovesListener();
+  initCardsView();
+  initStarsView();
+  initTimerView();
+  initMovesView();
 });
