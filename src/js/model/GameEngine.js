@@ -93,6 +93,9 @@ let gameEngine = (function() {
       }
     },
     reset: function() {
+      movesPenaltyFactor = 0.001;
+      timerPenaltyFactor = 0.01;
+      timerIncrementPenaltyFactor = 0.01;
       gameState.getInstance().reset();
     },
     incTimer: function() {
