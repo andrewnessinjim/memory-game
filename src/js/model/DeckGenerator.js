@@ -1,6 +1,6 @@
 /*
 deckGenerator object exposes a generator function that can be used to generate cards.
-It also exposes some constants.
+It also exposes constants for deck names and deck size.
 */
 let deckGenerator = (function(){
   //Only one deck and one deck size supported for now. Can be parameterized later.
