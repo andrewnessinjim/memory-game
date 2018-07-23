@@ -83,7 +83,7 @@ let cards = (function() {
 })();
 /*
 deckGenerator object exposes a generator function that can be used to generate cards.
-It also exposes some constants.
+It also exposes constants for deck names and deck size.
 */
 let deckGenerator = (function(){
   //Only one deck and one deck size supported for now. Can be parameterized later.
@@ -220,6 +220,9 @@ let gameEngine = (function() {
       }
     },
     reset: function() {
+      movesPenaltyFactor = 0.001;
+      timerPenaltyFactor = 0.01;
+      timerIncrementPenaltyFactor = 0.01;
       gameState.getInstance().reset();
     },
     incTimer: function() {
@@ -444,6 +447,16 @@ let util = {
     }
   
     return array;
+  },
+
+  removeAllChildren: function (parent) {
+    while(parent.firstChild) {
+      parent.removeChild(parent.firstChild);
+    }
+  },
+
+  toDecimal: function(number, decimalPoints) {
+    return parseFloat(number.toFixed(decimalPoints));
   }
 }
 function initCardsView() {
@@ -465,9 +478,7 @@ function initCardsView() {
   })
 
   gameState.getInstance().addEventListener('reset', function() {
-    while(cardsContainer.firstChild) {
-      cardsContainer.removeChild(cardsContainer.firstChild);
-    }
+    util.removeAllChildren(cardsContainer);
     drawCards();
     controller.idle = true;
   })
@@ -517,12 +528,41 @@ function initResetButton() {
   });
 }
 function initStarsView() {
-  let starsVal = document.querySelector('.stars__val');
-  starsVal.textContent = gameState.getInstance().getStars();
-
+  const starsContainer = document.querySelector('.stars-container');
+  const TOTAL_STARS = 5;
   gameState.getInstance().addEventListener('stars', function(event) {
-    starsVal.textContent = event.detail.stars;
-  })
+    util.removeAllChildren(starsContainer);
+    let starsPercentage = util.toDecimal(event.detail.stars, 2);
+    console.log(starsPercentage);
+
+    starsAppended = 0;
+
+    while(starsPercentage >= util.toDecimal((1 / TOTAL_STARS), 2)) {
+      createStarDiv('yellow');
+
+      starsPercentage = util.toDecimal(starsPercentage - 0.20, 2);
+      starsAppended++;
+    }
+
+    if(starsAppended != TOTAL_STARS) {
+      remStars = Math.floor(Math.floor(starsPercentage * 100) / 20 * 100);
+      console.log("remStars: " + remStars);
+      createStarDiv(`linear-gradient(to right, yellow 0% ,yellow ${remStars}% ,grey ${remStars}% ,grey 100%)`);
+      starsAppended++;
+    }
+
+    while(starsAppended < TOTAL_STARS) {
+      createStarDiv('grey');
+      starsAppended++;
+    }
+  });
+
+  function createStarDiv(background) {
+    let starDiv = document.createElement('div');
+    starDiv.classList.add('star');
+    starDiv.style.background = background;
+    starsContainer.appendChild(starDiv);
+  }
 }
 function initTimerView() {
   const timerView = document.querySelector('.timer__seconds');
