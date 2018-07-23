@@ -11,6 +11,9 @@ let controller = {
       gameEngine.reset();
     }
   },
+  incTimer: function() {
+    gameEngine.incTimer();
+  },
   /* Controller will set this flag to false when calling the game engine.
    * Game Engine will set this flag to true before returning.
    */
@@ -127,49 +130,104 @@ The gameEngine receives calls from the controller, and decides how to change the
 state of the game. The state of the game is implemented a a singleton object which
 can be accessed by gameState.getInstance()
 */
-let gameEngine = {
-  cardClicked: function(cardIndex) {
-    let gState = gameState.getInstance();
-    let waitingCard = gState.getWaitingCard();
-    let selectedCard = gState.getCard(cardIndex);
+let gameEngine = (function() {
+  const timerWeightage = 0.25;
+  const movesWeightage = 0.75;
 
-    if(selectedCard.getState() === cards.STATE_OPEN ||
-        selectedCard.getState() === cards.STATE_WAITING) {
-          //User clicked on already opened card, ignore
-          controller.idle = true;
-          return;
-    }
+  let movesPenaltyFactor = 0.001;
+  let timerPenaltyFactor = 0.01;
+  let timerIncrementPenaltyFactor = 0.01;
 
-    if(waitingCard) { //A card is already open. We try to match it now.
-      gState.incMoves();
+  function calculateStars(didMove, didTimerIncrease) {
+    const gState = gameState.getInstance();
+    const deckSize = gState.getCards().length;
+    const moves = gState.getMoves();
+    const timerSeconds = gState.getTimerSeconds();
 
-      if(selectedCard.getId() === waitingCard.getId()) { //User matched a pair
-
-        gState.setCardState(waitingCard.getIndex(), cards.STATE_OPEN);
-        gState.setCardState(selectedCard.getIndex(), cards.STATE_OPEN);
-        gState.setWaitingCard(null);
-        controller.idle = true;
-      } else { //User failed to match a pair
-
-        gState.setCardState(selectedCard.getIndex(), cards.STATE_OPEN);
-        setTimeout(function() {
-
-          gState.setCardState(selectedCard.getIndex(), cards.STATE_CLOSED);
-          gState.setCardState(waitingCard.getIndex(), cards.STATE_CLOSED);
-          gState.setWaitingCard(null);
-          controller.idle = true;
-        }, 2000);
+    let movesScore;
+    if (moves < (3 * deckSize / 4)) {
+      movesScore = 1;
+    } else {
+      movesScore = 1 - movesPenaltyFactor;
+      if (didMove) {
+        movesPenaltyFactor *= 2;
       }
-    } else { //This is the first card of the pair the user is trying to match
-
-      gState.setWaitingCard(selectedCard);
-      controller.idle = true;
     }
-  },
-  reset: function() {
-    gameState.getInstance().reset();
-  }
-}
+
+    let timerScore;
+    if(timerSeconds < (1 * deckSize)) {
+      timerScore = 1;
+    } else {
+      timerScore = 1 - timerPenaltyFactor;
+      if(didTimerIncrease) {
+        timerPenaltyFactor += timerIncrementPenaltyFactor;
+      }
+    }
+
+    let stars = 0;
+    if(timerScore >= 0) {
+      stars += (timerScore * timerWeightage);
+    }
+
+    if(movesScore >= 0) {
+      stars += (movesScore * movesWeightage);
+    }
+    gState.setStars(stars);
+  };
+
+  return {
+    cardClicked: function(cardIndex) {
+      let gState = gameState.getInstance();
+      let waitingCard = gState.getWaitingCard();
+      let selectedCard = gState.getCard(cardIndex);
+
+      if(selectedCard.getState() === cards.STATE_OPEN ||
+          selectedCard.getState() === cards.STATE_WAITING) {
+            //User clicked on already opened card, ignore
+            controller.idle = true;
+            return;
+      }
+
+      if(waitingCard) { //A card is already open. We try to match it now.
+        gState.incMoves();
+        calculateStars(true, false);
+
+        if(selectedCard.getId() === waitingCard.getId()) { //User matched a pair
+
+          gState.setCardState(waitingCard.getIndex(), cards.STATE_OPEN);
+          gState.setCardState(selectedCard.getIndex(), cards.STATE_OPEN);
+          gState.setWaitingCard(null);
+          gState.incMatches();
+          if(gState.getMaxMatches() === gState.getCurrentMatches()) {
+            gState.win();
+          }
+          controller.idle = true;
+        } else { //User failed to match a pair
+
+          gState.setCardState(selectedCard.getIndex(), cards.STATE_OPEN);
+          setTimeout(function() {
+
+            gState.setCardState(selectedCard.getIndex(), cards.STATE_CLOSED);
+            gState.setCardState(waitingCard.getIndex(), cards.STATE_CLOSED);
+            gState.setWaitingCard(null);
+            controller.idle = true;
+          }, 1000);
+        }
+      } else { //This is the first card of the pair the user is trying to match
+
+        gState.setWaitingCard(selectedCard);
+        controller.idle = true;
+      }
+    },
+    reset: function() {
+      gameState.getInstance().reset();
+    },
+    incTimer: function() {
+      gameState.getInstance().incTimerSeconds();
+      calculateStars(false, true);
+    }
+  };
+})();
 /*
 gameState object is created from the GameState class as a singleton object.
 All the game state is stored in this object, and whenever any setter methods
@@ -186,9 +244,14 @@ let gameState = (function() {
   let _cards = Symbol('cards');
   let _timerSeconds = Symbol('timerSeconds');
   let _waitingCard = Symbol('waitingCard');
+  let _currentMatches = Symbol('currentMatches');
+  let _maxMatches = Symbol('maxMatches');
+  let _hasWon = Symbol('hasWon');
   let _dispatchMovesEvent = Symbol('dispatchMovesEvent');
   let _dispatchStarsEvent = Symbol('dispatchStarsEvent');
   let _dispatchResetEvent = Symbol('dispatchResetEvent');
+  let _dispatchTimerEvent = Symbol('dispatchTimerEvent');
+  let _dispatchWinEvent = Symbol('dispatchWinEvent');
 
   class GameState extends EventTarget {
     constructor(moves, stars, cards, timerSeconds) {
@@ -197,26 +260,53 @@ let gameState = (function() {
       this[_stars] = stars,
       this[_cards] = cards;
       this[_timerSeconds] = timerSeconds;
+      this[_currentMatches] = 0;
+      this[_maxMatches] = cards.length / 2;
+      this[_hasWon] = false;
     }
 
     [_dispatchMovesEvent]() {
-      let event = new CustomEvent('moves', {detail: {moves: this[_moves]}});
-      this.dispatchEvent(event);
+      let movesEvent = new CustomEvent('moves', {detail: {moves: this[_moves]}});
+      this.dispatchEvent(movesEvent);
     }
 
     [_dispatchStarsEvent]() {
-      let event = new CustomEvent('stars', {detail: {stars: this[_stars]}});
-      this.dispatchEvent(event);
+      let starsEvent = new CustomEvent('stars', {detail: {stars: this[_stars]}});
+      this.dispatchEvent(starsEvent);
     }
 
     [_dispatchResetEvent]() {
       let resetEvent = new CustomEvent('reset', {
         detail: {
           moves: this[_moves],
-          stars: this[_stars]
+          stars: this[_stars],
+          seconds: this[_timerSeconds]
         }
       });
       this.dispatchEvent(resetEvent);
+    }
+
+    [_dispatchTimerEvent]() {
+      let timerEvent = new CustomEvent('timer', {
+        detail: {
+          seconds: this[_timerSeconds]
+        }
+      });
+      this.dispatchEvent(timerEvent);
+    }
+
+    [_dispatchWinEvent]() {
+      let winEvent = new Event('win');
+      this.dispatchEvent(winEvent);
+    }
+
+    win() {
+      this[_hasWon] = true;
+      this[_dispatchWinEvent]();
+    }
+
+    incMatches() {
+      this[_currentMatches] += 1;
     }
 
     incMoves() {
@@ -226,16 +316,28 @@ let gameState = (function() {
 
     setStars(stars) {
       this[_stars] = stars;
-      console.log('Dispatch stars event');
+      this[_dispatchStarsEvent]();
     }
 
-    setTimer(timerSeconds) {
-      this[_timerSeconds] = timerSeconds;
-      console.log('Dispatch timer event');
+    incTimerSeconds() {
+      this[_timerSeconds] += 1;
+      this[_dispatchTimerEvent]();
     }
 
     getCards(){
       return this[_cards];
+    }
+
+    getTimerSeconds() {
+      return this[_timerSeconds];
+    }
+
+    getStars() {
+      return this[_stars];
+    }
+
+    getMoves() {
+      return this[_moves];
     }
 
     setCardState(index, state) {
@@ -262,11 +364,22 @@ let gameState = (function() {
       return this[_cards][cardIndex];
     }
 
+    getCurrentMatches() {
+      return this[_currentMatches];
+    }
+
+    getMaxMatches() {
+      return this[_maxMatches];
+    }
+
     reset() {
       this[_moves] = 0;
       this[_stars] = 1;
       this[_timerSeconds] = 0;
       this[_cards] = generateDeck();
+      this[_currentMatches] = 0;
+      this[_maxMatches] = this[_cards].length / 2;
+      this[_hasWon] = false;
       this[_dispatchResetEvent]();
     }
   }
@@ -297,6 +410,42 @@ let gameState = (function() {
     }
   }
 })();
+if (!String.prototype.padStart) {
+  String.prototype.padStart = function padStart(targetLength,padString) {
+      targetLength = targetLength>>0; //truncate if number or convert non-number to 0;
+      padString = String((typeof padString !== 'undefined' ? padString : ' '));
+      if (this.length > targetLength) {
+          return String(this);
+      }
+      else {
+          targetLength = targetLength-this.length;
+          if (targetLength > padString.length) {
+              padString += padString.repeat(targetLength/padString.length); //append to original to ensure we are longer than needed
+          }
+          return padString.slice(0,targetLength) + String(this);
+      }
+  };
+}
+let util = {
+  shuffle: function shuffle(array) {
+    var currentIndex = array.length, temporaryValue, randomIndex;
+  
+    // While there remain elements to shuffle...
+    while (0 !== currentIndex) {
+  
+      // Pick a remaining element...
+      randomIndex = Math.floor(Math.random() * currentIndex);
+      currentIndex -= 1;
+  
+      // And swap it with the current element.
+      temporaryValue = array[currentIndex];
+      array[currentIndex] = array[randomIndex];
+      array[randomIndex] = temporaryValue;
+    }
+  
+    return array;
+  }
+}
 function initCardsView() {
   const cardsContainer = document.querySelector('.cards-container');
 
@@ -368,44 +517,42 @@ function initResetButton() {
   });
 }
 function initStarsView() {
-  gameState.getInstance().setStars(1);
+  let starsVal = document.querySelector('.stars__val');
+  starsVal.textContent = gameState.getInstance().getStars();
+
+  gameState.getInstance().addEventListener('stars', function(event) {
+    starsVal.textContent = event.detail.stars;
+  })
 }
 function initTimerView() {
-  gameState.getInstance().setTimer(0);
-}
-if (!String.prototype.padStart) {
-  String.prototype.padStart = function padStart(targetLength,padString) {
-      targetLength = targetLength>>0; //truncate if number or convert non-number to 0;
-      padString = String((typeof padString !== 'undefined' ? padString : ' '));
-      if (this.length > targetLength) {
-          return String(this);
-      }
-      else {
-          targetLength = targetLength-this.length;
-          if (targetLength > padString.length) {
-              padString += padString.repeat(targetLength/padString.length); //append to original to ensure we are longer than needed
-          }
-          return padString.slice(0,targetLength) + String(this);
-      }
-  };
-}
-let util = {
-  shuffle: function shuffle(array) {
-    var currentIndex = array.length, temporaryValue, randomIndex;
-  
-    // While there remain elements to shuffle...
-    while (0 !== currentIndex) {
-  
-      // Pick a remaining element...
-      randomIndex = Math.floor(Math.random() * currentIndex);
-      currentIndex -= 1;
-  
-      // And swap it with the current element.
-      temporaryValue = array[currentIndex];
-      array[currentIndex] = array[randomIndex];
-      array[randomIndex] = temporaryValue;
-    }
-  
-    return array;
+  const timerView = document.querySelector('.timer__seconds');
+  const gState = gameState.getInstance();
+
+  drawTime(gState.getTimerSeconds());
+
+  let timerInterval = setInterval(function() {
+    controller.incTimer()
+  }, 1000);
+
+  gState.addEventListener('timer', function(event) {
+    drawTime(event.detail.seconds);
+  });
+
+  gState.addEventListener('reset', function(event) {
+    drawTime(event.detail.seconds);
+    clearInterval(timerInterval);
+    timerInterval = setInterval(function() {
+      controller.incTimer()
+    }, 1000);
+  });
+
+  gState.addEventListener('win', function(){
+    clearInterval(timerInterval);
+  })
+
+  function drawTime(seconds) {
+    let minutes = Math.floor(seconds / 60).toString().padStart(2, '0');
+    seconds = Math.floor(seconds - (minutes * 60)).toString().padStart(2, '0');
+    timerView.textContent = `${minutes}:${seconds}`;
   }
 }
