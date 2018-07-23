@@ -17,9 +17,7 @@ function initCardsView() {
   })
 
   gameState.getInstance().addEventListener('reset', function() {
-    while(cardsContainer.firstChild) {
-      cardsContainer.removeChild(cardsContainer.firstChild);
-    }
+    util.removeAllChildren(cardsContainer);
     drawCards();
     controller.idle = true;
   })
