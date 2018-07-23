@@ -8,10 +8,18 @@
 .controls__reset {
   width: 80%;
   margin: auto;
-  transition: 1s transform;
+  transition: 0.2s transform;
 }
 
 .controls__reset:hover {
   cursor: pointer;
-  transform: scale(1.1) rotate(360deg);
+  transform: scale(1.1);
+  box-shadow: 2px 2px 2px black;
+  border-radius: 50%;
+}
+
+.controls__reset:active {
+  cursor: pointer;
+  transform: scale(0.8);
+  box-shadow: unset;
 }
