@@ -131,12 +131,26 @@ state of the game. The state of the game is implemented a a singleton object whi
 can be accessed by gameState.getInstance()
 */
 let gameEngine = (function() {
+  let hasGameStarted = false;
+
   const timerWeightage = 0.25;
   const movesWeightage = 0.75;
 
   let movesPenaltyFactor = 0.001;
   let timerPenaltyFactor = 0.01;
   let timerIncrementPenaltyFactor = 0.01;
+
+  let timer;
+  let beginTimer = function() {
+    return setInterval(function() {
+      gameState.getInstance().incTimerSeconds();
+      calculateStars(false, true);
+    }, 1000);
+  };
+
+  let stopTimer = function(timer) {
+    clearInterval(timer);
+  };
 
   function calculateStars(didMove, didTimerIncrease) {
     const gState = gameState.getInstance();
@@ -177,6 +191,14 @@ let gameEngine = (function() {
 
   return {
     cardClicked: function(cardIndex) {
+      if(!hasGameStarted) {
+        hasGameStarted = true;
+        timer = beginTimer();
+
+        gameState.getInstance().addEventListener('win', function() {
+          stopTimer(timer);
+        });
+      }
       let gState = gameState.getInstance();
       let waitingCard = gState.getWaitingCard();
       let selectedCard = gState.getCard(cardIndex);
@@ -223,6 +245,8 @@ let gameEngine = (function() {
       movesPenaltyFactor = 0.001;
       timerPenaltyFactor = 0.01;
       timerIncrementPenaltyFactor = 0.01;
+      hasGameStarted = false;
+      clearInterval(timer);
       gameState.getInstance().reset();
     },
     incTimer: function() {
@@ -530,32 +554,36 @@ function initResetButton() {
 function initStarsView() {
   const starsContainer = document.querySelector('.stars-container');
   const TOTAL_STARS = 5;
+  drawStars(gameState.getInstance().getStars());
   gameState.getInstance().addEventListener('stars', function(event) {
+    drawStars(event.detail.stars);
+  });
+
+  gameState.getInstance().addEventListener('reset', function(event) {
+    drawStars(event.detail.stars);
+  });
+
+  function drawStars(stars) {
     util.removeAllChildren(starsContainer);
-    let starsPercentage = util.toDecimal(event.detail.stars, 2);
+    let starsPercentage = util.toDecimal(stars, 2);
     console.log(starsPercentage);
-
     starsAppended = 0;
-
-    while(starsPercentage >= util.toDecimal((1 / TOTAL_STARS), 2)) {
+    while (starsPercentage >= util.toDecimal((1 / TOTAL_STARS), 2)) {
       createStarDiv('yellow');
-
       starsPercentage = util.toDecimal(starsPercentage - 0.20, 2);
       starsAppended++;
     }
-
-    if(starsAppended != TOTAL_STARS) {
+    if (starsAppended != TOTAL_STARS) {
       remStars = Math.floor(Math.floor(starsPercentage * 100) / 20 * 100);
       console.log("remStars: " + remStars);
       createStarDiv(`linear-gradient(to right, yellow 0% ,yellow ${remStars}% ,grey ${remStars}% ,grey 100%)`);
       starsAppended++;
     }
-
-    while(starsAppended < TOTAL_STARS) {
+    while (starsAppended < TOTAL_STARS) {
       createStarDiv('grey');
       starsAppended++;
     }
-  });
+  }
 
   function createStarDiv(background) {
     let starDiv = document.createElement('div');
@@ -570,25 +598,13 @@ function initTimerView() {
 
   drawTime(gState.getTimerSeconds());
 
-  let timerInterval = setInterval(function() {
-    controller.incTimer()
-  }, 1000);
-
   gState.addEventListener('timer', function(event) {
     drawTime(event.detail.seconds);
   });
 
   gState.addEventListener('reset', function(event) {
     drawTime(event.detail.seconds);
-    clearInterval(timerInterval);
-    timerInterval = setInterval(function() {
-      controller.incTimer()
-    }, 1000);
   });
-
-  gState.addEventListener('win', function(){
-    clearInterval(timerInterval);
-  })
 
   function drawTime(seconds) {
     let minutes = Math.floor(seconds / 60).toString().padStart(2, '0');
