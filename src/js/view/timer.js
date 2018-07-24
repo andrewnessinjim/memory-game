@@ -1,5 +1,5 @@
 function initTimerView() {
-  const timerView = document.querySelector('.timer__seconds');
+  const timerView = document.querySelector('.timer__val');
   const gState = gameState.getInstance();
 
   drawTime(gState.getTimerSeconds());

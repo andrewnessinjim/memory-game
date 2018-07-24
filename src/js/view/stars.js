@@ -1,5 +1,5 @@
 function initStarsView() {
-  const starsContainer = document.querySelector('.stars-container');
+  const starsContainer = document.querySelector('.stars');
   const TOTAL_STARS = 5;
   drawStars(gameState.getInstance().getStars());
   gameState.getInstance().addEventListener('stars', function(event) {
@@ -34,7 +34,7 @@ function initStarsView() {
 
   function createStarDiv(background) {
     let starDiv = document.createElement('div');
-    starDiv.classList.add('star');
+    starDiv.classList.add('stars__star');
     starDiv.style.background = background;
     starsContainer.appendChild(starDiv);
   }

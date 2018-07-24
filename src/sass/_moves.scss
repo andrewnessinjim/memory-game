@@ -1,16 +1,10 @@
-.moves-container {
+.moves {
   width: 20%;
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
 }
 
-.moves-val-container {
-  flex: 1;
-  display: flex;
-  margin: auto;
-}
-
-.moves-val {
+.moves__val {
   margin: auto;
 }
