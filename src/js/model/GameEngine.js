@@ -62,15 +62,17 @@ let gameEngine = (function() {
     gState.setStars(stars);
   };
 
+  let winListener =function() {
+    stopTimer(timer);
+  };
+
   return {
     cardClicked: function(cardIndex) {
       if(!hasGameStarted) {
         hasGameStarted = true;
         timer = beginTimer();
 
-        gameState.getInstance().addEventListener('win', function() {
-          stopTimer(timer);
-        });
+        gameState.getInstance().addEventListener('win', winListener);
       }
       let gState = gameState.getInstance();
       let waitingCard = gState.getWaitingCard();
@@ -120,6 +122,7 @@ let gameEngine = (function() {
       timerIncrementPenaltyFactor = 0.01;
       hasGameStarted = false;
       clearInterval(timer);
+      gameState.getInstance().removeEventListener('win', winListener);
       gameState.getInstance().reset();
     },
     incTimer: function() {
