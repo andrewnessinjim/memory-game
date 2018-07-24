@@ -4,12 +4,26 @@ state of the game. The state of the game is implemented a a singleton object whi
 can be accessed by gameState.getInstance()
 */
 let gameEngine = (function() {
+  let hasGameStarted = false;
+
   const timerWeightage = 0.25;
   const movesWeightage = 0.75;
 
   let movesPenaltyFactor = 0.001;
   let timerPenaltyFactor = 0.01;
   let timerIncrementPenaltyFactor = 0.01;
+
+  let timer;
+  let beginTimer = function() {
+    return setInterval(function() {
+      gameState.getInstance().incTimerSeconds();
+      calculateStars(false, true);
+    }, 1000);
+  };
+
+  let stopTimer = function(timer) {
+    clearInterval(timer);
+  };
 
   function calculateStars(didMove, didTimerIncrease) {
     const gState = gameState.getInstance();
@@ -50,6 +64,14 @@ let gameEngine = (function() {
 
   return {
     cardClicked: function(cardIndex) {
+      if(!hasGameStarted) {
+        hasGameStarted = true;
+        timer = beginTimer();
+
+        gameState.getInstance().addEventListener('win', function() {
+          stopTimer(timer);
+        });
+      }
       let gState = gameState.getInstance();
       let waitingCard = gState.getWaitingCard();
       let selectedCard = gState.getCard(cardIndex);
@@ -96,6 +118,8 @@ let gameEngine = (function() {
       movesPenaltyFactor = 0.001;
       timerPenaltyFactor = 0.01;
       timerIncrementPenaltyFactor = 0.01;
+      hasGameStarted = false;
+      clearInterval(timer);
       gameState.getInstance().reset();
     },
     incTimer: function() {
