@@ -5,7 +5,7 @@ function initCardsView() {
 
   cardsContainer.addEventListener('click', function(event) {
     const cardIndex = event.target.getAttribute('card-index');
-    if(cardIndex) {
+    if(cardIndex) { //Ensure a card was clicked
       controller.cardClicked(cardIndex);
     }
   });

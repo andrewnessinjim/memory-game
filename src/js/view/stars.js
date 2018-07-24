@@ -13,17 +13,18 @@ function initStarsView() {
   function drawStars(stars) {
     util.removeAllChildren(starsContainer);
     let starsPercentage = util.toDecimal(stars, 2);
-    console.log(starsPercentage);
+    
     starsAppended = 0;
-    while (starsPercentage >= util.toDecimal((1 / TOTAL_STARS), 2)) {
+    while (starsPercentage >= util.toDecimal((1 / TOTAL_STARS), 2)) { //One star can be completely filled
       createStarDiv('yellow');
-      starsPercentage = util.toDecimal(starsPercentage - 0.20, 2);
+      starsPercentage = util.toDecimal(starsPercentage - 0.20, 2); //Deduct one star's worth percentage
       starsAppended++;
     }
     if (starsAppended != TOTAL_STARS) {
-      remStars = Math.floor(Math.floor(starsPercentage * 100) / 20 * 100);
-      console.log("remStars: " + remStars);
-      createStarDiv(`linear-gradient(to right, yellow 0% ,yellow ${remStars}% ,grey ${remStars}% ,grey 100%)`);
+      let overall = Math.floor(starsPercentage * 100) //percentage
+      let singleStar = Math.floor(overall / 20 * 100);
+      
+      createStarDiv(`linear-gradient(to right, yellow 0% ,yellow ${singleStar}% ,grey ${singleStar}% ,grey 100%)`);
       starsAppended++;
     }
     while (starsAppended < TOTAL_STARS) {
