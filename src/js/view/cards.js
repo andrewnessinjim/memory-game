@@ -1,5 +1,5 @@
 function initCardsView() {
-  const cardsContainer = document.querySelector('.cards-container');
+  const cardsContainer = document.querySelector('.cards');
 
   drawCards();
 
@@ -12,7 +12,7 @@ function initCardsView() {
 
   gameState.getInstance().addEventListener('state', function(event) {
     let card = event.detail.card;
-    let div = document.querySelector(`.card[card-index="${card.getIndex()}"]`)
+    let div = document.querySelector(`.cards__card[card-index="${card.getIndex()}"]`)
     setCardState(div, card);
   })
 
@@ -28,7 +28,7 @@ function initCardsView() {
     }
     function createCardDiv(card) {
       const div = document.createElement('div');
-      div.classList.add('card');
+      div.classList.add('cards__card');
       div.setAttribute('card_id', card.getId());
       div.setAttribute('card-index', card.getIndex());
       setCardState(div, card);
@@ -37,9 +37,9 @@ function initCardsView() {
   }
 
   function setCardState(div, card) {
-    div.classList.remove('card-closed');
+    div.classList.remove('cards__card--closed');
     if(card.getState() === cards.STATE_CLOSED) {
-      div.classList.add('card-closed');
+      div.classList.add('cards__card--closed');
       div.style.backgroundImage = '';
     } else if (
       card.getState() === cards.STATE_OPEN

@@ -1,24 +1,4 @@
-.card {
-  width: 100px;
-  height: 100px;
-  border: 2px groove darken($primary-color, 70%);
-  box-sizing: border-box;
-  margin: 4px 0;
-  padding: 30px;
-  border-radius: 10px;
-  background-position: center;
-  background-size: 50%;
-  background-repeat: no-repeat;
-}
-
-.card-closed {
-  background: radial-gradient(lighten($primary-color, 30%),darken($primary-color, 30%))
-}
-.card:hover {
-  cursor: pointer;
-}
-
-.cards-container{
+.cards{
   display: flex;
   flex-wrap: wrap;
   justify-content: space-around;
@@ -26,4 +6,25 @@
   padding: 10px;
   border-radius: 10px;
   box-shadow: 4px 4px 2px black;
+
+  .cards__card {
+    width: 100px;
+    height: 100px;
+    border: 2px groove darken($primary-color, 70%);
+    box-sizing: border-box;
+    margin: 4px 0;
+    padding: 30px;
+    border-radius: 10px;
+    background-position: center;
+    background-size: 50%;
+    background-repeat: no-repeat;
+  }
+  
+  .cards__card--closed {
+    background: radial-gradient(lighten($primary-color, 30%),darken($primary-color, 30%))
+  }
+  
+  .cards__card:hover {
+    cursor: pointer;
+  }
 }
