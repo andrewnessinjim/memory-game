@@ -20,6 +20,8 @@ let controller = {
   idle: true
 }
 document.addEventListener('DOMContentLoaded', function() {
+  initDashboardView();
+  initSummaryView();
   initCardsView();
   initStarsView();
   initTimerView();
@@ -189,15 +191,17 @@ let gameEngine = (function() {
     gState.setStars(stars);
   };
 
+  let winListener =function() {
+    stopTimer(timer);
+  };
+
   return {
     cardClicked: function(cardIndex) {
       if(!hasGameStarted) {
         hasGameStarted = true;
         timer = beginTimer();
 
-        gameState.getInstance().addEventListener('win', function() {
-          stopTimer(timer);
-        });
+        gameState.getInstance().addEventListener('win', winListener);
       }
       let gState = gameState.getInstance();
       let waitingCard = gState.getWaitingCard();
@@ -247,6 +251,7 @@ let gameEngine = (function() {
       timerIncrementPenaltyFactor = 0.01;
       hasGameStarted = false;
       clearInterval(timer);
+      gameState.getInstance().removeEventListener('win', winListener);
       gameState.getInstance().reset();
     },
     incTimer: function() {
@@ -266,19 +271,14 @@ let gameState = (function() {
   let instance;
 
   //Symbols for implementing private variables.
-  let _moves = Symbol('moves');
-  let _stars = Symbol('stars');
-  let _cards = Symbol('cards');
-  let _timerSeconds = Symbol('timerSeconds');
-  let _waitingCard = Symbol('waitingCard');
-  let _currentMatches = Symbol('currentMatches');
-  let _maxMatches = Symbol('maxMatches');
-  let _hasWon = Symbol('hasWon');
-  let _dispatchMovesEvent = Symbol('dispatchMovesEvent');
-  let _dispatchStarsEvent = Symbol('dispatchStarsEvent');
-  let _dispatchResetEvent = Symbol('dispatchResetEvent');
-  let _dispatchTimerEvent = Symbol('dispatchTimerEvent');
-  let _dispatchWinEvent = Symbol('dispatchWinEvent');
+  const _moves = Symbol('moves');
+  const _stars = Symbol('stars');
+  const _cards = Symbol('cards');
+  const _timerSeconds = Symbol('timerSeconds');
+  const _waitingCard = Symbol('waitingCard');
+  const _currentMatches = Symbol('currentMatches');
+  const _maxMatches = Symbol('maxMatches');
+  const _hasWon = Symbol('hasWon');
 
   class GameState extends EventTarget {
     constructor(moves, stars, cards, timerSeconds) {
@@ -292,44 +292,9 @@ let gameState = (function() {
       this[_hasWon] = false;
     }
 
-    [_dispatchMovesEvent]() {
-      let movesEvent = new CustomEvent('moves', {detail: {moves: this[_moves]}});
-      this.dispatchEvent(movesEvent);
-    }
-
-    [_dispatchStarsEvent]() {
-      let starsEvent = new CustomEvent('stars', {detail: {stars: this[_stars]}});
-      this.dispatchEvent(starsEvent);
-    }
-
-    [_dispatchResetEvent]() {
-      let resetEvent = new CustomEvent('reset', {
-        detail: {
-          moves: this[_moves],
-          stars: this[_stars],
-          seconds: this[_timerSeconds]
-        }
-      });
-      this.dispatchEvent(resetEvent);
-    }
-
-    [_dispatchTimerEvent]() {
-      let timerEvent = new CustomEvent('timer', {
-        detail: {
-          seconds: this[_timerSeconds]
-        }
-      });
-      this.dispatchEvent(timerEvent);
-    }
-
-    [_dispatchWinEvent]() {
-      let winEvent = new Event('win');
-      this.dispatchEvent(winEvent);
-    }
-
     win() {
       this[_hasWon] = true;
-      this[_dispatchWinEvent]();
+      this.dispatchEvent(new Event('win'));
     }
 
     incMatches() {
@@ -338,17 +303,17 @@ let gameState = (function() {
 
     incMoves() {
       this[_moves] += 1;
-      this[_dispatchMovesEvent]();
+      this.dispatchEvent(new Event('moves'));
     }
 
     setStars(stars) {
       this[_stars] = stars;
-      this[_dispatchStarsEvent]();
+      this.dispatchEvent(new Event('stars'));
     }
 
     incTimerSeconds() {
       this[_timerSeconds] += 1;
-      this[_dispatchTimerEvent]();
+      this.dispatchEvent(new Event('timer'));
     }
 
     getCards(){
@@ -407,7 +372,7 @@ let gameState = (function() {
       this[_currentMatches] = 0;
       this[_maxMatches] = this[_cards].length / 2;
       this[_hasWon] = false;
-      this[_dispatchResetEvent]();
+      this.dispatchEvent(new Event('reset'));
     }
   }
 
@@ -484,28 +449,34 @@ let util = {
   }
 }
 function initCardsView() {
-  const cardsContainer = document.querySelector('.cards-container');
+  const cardsContainer = document.querySelector('.cards');
+  const gState = gameState.getInstance();
 
   drawCards();
 
   cardsContainer.addEventListener('click', function(event) {
     const cardIndex = event.target.getAttribute('card-index');
-    if(cardIndex) {
+    if(cardIndex) { //Ensure a card was clicked
       controller.cardClicked(cardIndex);
     }
   });
 
-  gameState.getInstance().addEventListener('state', function(event) {
+  gState.addEventListener('state', function(event) {
     let card = event.detail.card;
-    let div = document.querySelector(`.card[card-index="${card.getIndex()}"]`)
+    let div = document.querySelector(`.cards__card[card-index="${card.getIndex()}"]`)
     setCardState(div, card);
-  })
+  });
 
-  gameState.getInstance().addEventListener('reset', function() {
+  gState.addEventListener('reset', function() {
     util.removeAllChildren(cardsContainer);
     drawCards();
+    cardsContainer.classList.remove('cards--hide');
     controller.idle = true;
-  })
+  });
+
+  gState.addEventListener('win', function() {
+    cardsContainer.classList.add('cards--hide');
+  });
 
   function drawCards() {
     for (let card of gameState.getInstance().getCards()) {
@@ -513,7 +484,7 @@ function initCardsView() {
     }
     function createCardDiv(card) {
       const div = document.createElement('div');
-      div.classList.add('card');
+      div.classList.add('cards__card');
       div.setAttribute('card_id', card.getId());
       div.setAttribute('card-index', card.getIndex());
       setCardState(div, card);
@@ -522,9 +493,9 @@ function initCardsView() {
   }
 
   function setCardState(div, card) {
-    div.classList.remove('card-closed');
+    div.classList.remove('cards__card--closed');
     if(card.getState() === cards.STATE_CLOSED) {
-      div.classList.add('card-closed');
+      div.classList.add('cards__card--closed');
       div.style.backgroundImage = '';
     } else if (
       card.getState() === cards.STATE_OPEN
@@ -534,81 +505,138 @@ function initCardsView() {
     }
   }
 }
-function initMovesView() {
-  let movesContainer = document.querySelector('.moves-val');
+function initDashboardView() {
+  const dashboard = document.querySelector('.dashboard');
+  const gState = gameState.getInstance();
 
-  gameState.getInstance().addEventListener('moves',function(event) {
-    movesContainer.textContent = event.detail.moves;
-  })
+  gState.addEventListener('win',function(event) {
+    dashboard.classList.add('dashboard--hide');
+  });
 
-  gameState.getInstance().addEventListener('reset',function() {
-    movesContainer.textContent = event.detail.moves;
+  gState.addEventListener('reset',function(event) {
+    dashboard.classList.remove('dashboard--hide');
   })
 }
+function initMovesView() {
+  const movesVal = document.querySelector('.moves__val');
+  const summaryMovesVal = document.querySelector('.summary__movesVal');
+  const gState = gameState.getInstance();
+
+  gState.addEventListener('moves',function(event) {
+    movesVal.textContent = gState.getMoves();
+  });
+
+  gState.addEventListener('reset',function() {
+    movesVal.textContent = gState.getMoves();
+  });
+
+  gState.addEventListener('win',function() {
+    summaryMovesVal.textContent = gState.getMoves();
+  });
+}
 function initResetButton() {
-  let resetButton = document.querySelector('.controls__reset');
+  const resetButton = document.querySelector('.controls__reset');
+  const playAgain = document.querySelector('.summary__playAgain');
+
   resetButton.addEventListener('click', function() {
+    controller.reset();
+  });
+
+  playAgain.addEventListener('click', function() {
     controller.reset();
   });
 }
 function initStarsView() {
-  const starsContainer = document.querySelector('.stars-container');
+  const dashboardStarsContainer = document.querySelector('.dashboard .stars');
+  const summaryStarsContainer = document.querySelector('.summary .stars');
   const TOTAL_STARS = 5;
-  drawStars(gameState.getInstance().getStars());
-  gameState.getInstance().addEventListener('stars', function(event) {
-    drawStars(event.detail.stars);
+  const gState = gameState.getInstance();
+
+  drawStars(gState.getStars(), dashboardStarsContainer);
+
+  gState.addEventListener('stars', function() {
+    drawStars(gState.getStars(), dashboardStarsContainer);
   });
 
-  gameState.getInstance().addEventListener('reset', function(event) {
-    drawStars(event.detail.stars);
+  gState.addEventListener('reset', function() {
+    drawStars(gState.getStars(), dashboardStarsContainer);
   });
 
-  function drawStars(stars) {
+  gState.addEventListener('win', function() {
+    drawStars(gState.getStars(), summaryStarsContainer, true);
+  });
+
+  function drawStars(stars, starsContainer, animate) {
     util.removeAllChildren(starsContainer);
     let starsPercentage = util.toDecimal(stars, 2);
-    console.log(starsPercentage);
+    
     starsAppended = 0;
-    while (starsPercentage >= util.toDecimal((1 / TOTAL_STARS), 2)) {
-      createStarDiv('yellow');
-      starsPercentage = util.toDecimal(starsPercentage - 0.20, 2);
+    while (starsPercentage >= util.toDecimal((1 / TOTAL_STARS), 2)) { //One star can be completely filled
+      starsContainer.appendChild(createStarDiv('yellow', animate));
+      starsPercentage = util.toDecimal(starsPercentage - 0.20, 2); //Deduct one star's worth percentage
       starsAppended++;
     }
     if (starsAppended != TOTAL_STARS) {
-      remStars = Math.floor(Math.floor(starsPercentage * 100) / 20 * 100);
-      console.log("remStars: " + remStars);
-      createStarDiv(`linear-gradient(to right, yellow 0% ,yellow ${remStars}% ,grey ${remStars}% ,grey 100%)`);
+      let overall = Math.floor(starsPercentage * 100) //percentage
+      let singleStar = Math.floor(overall / 20 * 100);
+      
+      starsContainer.appendChild(
+        createStarDiv(
+          `linear-gradient(to right, yellow 0% ,yellow ${singleStar}% ,grey ${singleStar}% ,grey 100%)`
+        )
+      );
       starsAppended++;
     }
     while (starsAppended < TOTAL_STARS) {
-      createStarDiv('grey');
+      starsContainer.appendChild(createStarDiv('grey'));
       starsAppended++;
     }
   }
 
-  function createStarDiv(background) {
-    let starDiv = document.createElement('div');
-    starDiv.classList.add('star');
+  function createStarDiv(background, animate) {
+    const starDiv = document.createElement('div');
+    starDiv.classList.add('stars__star');
+    if(animate) {
+      starDiv.classList.add('stars__star--rotate');
+    }
     starDiv.style.background = background;
-    starsContainer.appendChild(starDiv);
+    return starDiv;
   }
 }
-function initTimerView() {
-  const timerView = document.querySelector('.timer__seconds');
+function initSummaryView() {
+  const summary = document.querySelector('.summary');
   const gState = gameState.getInstance();
 
-  drawTime(gState.getTimerSeconds());
-
-  gState.addEventListener('timer', function(event) {
-    drawTime(event.detail.seconds);
+  gState.addEventListener('win',function(event) {
+    summary.classList.remove('summary--hide');
   });
 
-  gState.addEventListener('reset', function(event) {
-    drawTime(event.detail.seconds);
+  gState.addEventListener('reset',function(event) {
+    summary.classList.add('summary--hide');
+  });
+}
+function initTimerView() {
+  const gState = gameState.getInstance();
+  const timerView = document.querySelector('.timer__val');
+  const summaryTimerView = document.querySelector('.summary__timerVal');
+
+  drawTime(gState.getTimerSeconds(), timerView);
+
+  gState.addEventListener('timer', function() {
+    drawTime(gState.getTimerSeconds(), timerView);
   });
 
-  function drawTime(seconds) {
+  gState.addEventListener('reset', function() {
+    drawTime(gState.getTimerSeconds(), timerView);
+  });
+
+  gState.addEventListener('win', function() {
+    drawTime(gState.getTimerSeconds(), summaryTimerView);
+  });
+
+  function drawTime(seconds, view) {
     let minutes = Math.floor(seconds / 60).toString().padStart(2, '0');
     seconds = Math.floor(seconds - (minutes * 60)).toString().padStart(2, '0');
-    timerView.textContent = `${minutes}:${seconds}`;
+    view.textContent = `${minutes}:${seconds}`;
   }
 }
