@@ -1,24 +1,30 @@
 function initStarsView() {
-  const starsContainer = document.querySelector('.stars');
+  const dashboardStarsContainer = document.querySelector('.dashboard .stars');
+  const summaryStarsContainer = document.querySelector('.summary .stars');
   const TOTAL_STARS = 5;
   const gState = gameState.getInstance();
 
-  drawStars(gameState.getInstance().getStars());
+  drawStars(gState.getStars(), dashboardStarsContainer);
+
   gState.addEventListener('stars', function() {
-    drawStars(gState.getStars());
+    drawStars(gState.getStars(), dashboardStarsContainer);
   });
 
   gState.addEventListener('reset', function() {
-    drawStars(gState.getStars());
+    drawStars(gState.getStars(), dashboardStarsContainer);
   });
 
-  function drawStars(stars) {
+  gState.addEventListener('win', function() {
+    drawStars(gState.getStars(), summaryStarsContainer, true);
+  });
+
+  function drawStars(stars, starsContainer, animate) {
     util.removeAllChildren(starsContainer);
     let starsPercentage = util.toDecimal(stars, 2);
     
     starsAppended = 0;
     while (starsPercentage >= util.toDecimal((1 / TOTAL_STARS), 2)) { //One star can be completely filled
-      createStarDiv('yellow');
+      starsContainer.appendChild(createStarDiv('yellow', animate));
       starsPercentage = util.toDecimal(starsPercentage - 0.20, 2); //Deduct one star's worth percentage
       starsAppended++;
     }
@@ -26,19 +32,26 @@ function initStarsView() {
       let overall = Math.floor(starsPercentage * 100) //percentage
       let singleStar = Math.floor(overall / 20 * 100);
       
-      createStarDiv(`linear-gradient(to right, yellow 0% ,yellow ${singleStar}% ,grey ${singleStar}% ,grey 100%)`);
+      starsContainer.appendChild(
+        createStarDiv(
+          `linear-gradient(to right, yellow 0% ,yellow ${singleStar}% ,grey ${singleStar}% ,grey 100%)`
+        )
+      );
       starsAppended++;
     }
     while (starsAppended < TOTAL_STARS) {
-      createStarDiv('grey');
+      starsContainer.appendChild(createStarDiv('grey'));
       starsAppended++;
     }
   }
 
-  function createStarDiv(background) {
-    let starDiv = document.createElement('div');
+  function createStarDiv(background, animate) {
+    const starDiv = document.createElement('div');
     starDiv.classList.add('stars__star');
+    if(animate) {
+      starDiv.classList.add('stars__star--rotate');
+    }
     starDiv.style.background = background;
-    starsContainer.appendChild(starDiv);
+    return starDiv;
   }
 }
