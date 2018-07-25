@@ -9,19 +9,19 @@ let gameState = (function() {
   let instance;
 
   //Symbols for implementing private variables.
-  let _moves = Symbol('moves');
-  let _stars = Symbol('stars');
-  let _cards = Symbol('cards');
-  let _timerSeconds = Symbol('timerSeconds');
-  let _waitingCard = Symbol('waitingCard');
-  let _currentMatches = Symbol('currentMatches');
-  let _maxMatches = Symbol('maxMatches');
-  let _hasWon = Symbol('hasWon');
-  let _dispatchMovesEvent = Symbol('dispatchMovesEvent');
-  let _dispatchStarsEvent = Symbol('dispatchStarsEvent');
-  let _dispatchResetEvent = Symbol('dispatchResetEvent');
-  let _dispatchTimerEvent = Symbol('dispatchTimerEvent');
-  let _dispatchWinEvent = Symbol('dispatchWinEvent');
+  const _moves = Symbol('moves');
+  const _stars = Symbol('stars');
+  const _cards = Symbol('cards');
+  const _timerSeconds = Symbol('timerSeconds');
+  const _waitingCard = Symbol('waitingCard');
+  const _currentMatches = Symbol('currentMatches');
+  const _maxMatches = Symbol('maxMatches');
+  const _hasWon = Symbol('hasWon');
+  const _dispatchMovesEvent = Symbol('dispatchMovesEvent');
+  const _dispatchStarsEvent = Symbol('dispatchStarsEvent');
+  const _dispatchResetEvent = Symbol('dispatchResetEvent');
+  const _dispatchTimerEvent = Symbol('dispatchTimerEvent');
+  const _dispatchWinEvent = Symbol('dispatchWinEvent');
 
   class GameState extends EventTarget {
     constructor(moves, stars, cards, timerSeconds) {

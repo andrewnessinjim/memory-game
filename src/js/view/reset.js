@@ -1,6 +1,6 @@
 function initResetButton() {
-  let resetButton = document.querySelector('.controls__reset');
-  let playAgain = document.querySelector('.summary__playAgain');
+  const resetButton = document.querySelector('.controls__reset');
+  const playAgain = document.querySelector('.summary__playAgain');
 
   resetButton.addEventListener('click', function() {
     controller.reset();

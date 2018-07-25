@@ -1,5 +1,5 @@
 function initSummaryView() {
-  let summary = document.querySelector('.summary');
+  const summary = document.querySelector('.summary');
   const gState = gameState.getInstance();
 
   gState.addEventListener('win',function(event) {

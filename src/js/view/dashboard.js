@@ -1,5 +1,5 @@
 function initDashboardView() {
-  let dashboard = document.querySelector('.dashboard');
+  const dashboard = document.querySelector('.dashboard');
   const gState = gameState.getInstance();
 
   gState.addEventListener('win',function(event) {

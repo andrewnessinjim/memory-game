@@ -1,6 +1,6 @@
 function initMovesView() {
-  let movesVal = document.querySelector('.moves__val');
-  let summaryMovesVal = document.querySelector('.summary__movesVal');
+  const movesVal = document.querySelector('.moves__val');
+  const summaryMovesVal = document.querySelector('.summary__movesVal');
   const gState = gameState.getInstance();
 
   gState.addEventListener('moves',function(event) {
