@@ -13,8 +13,6 @@ function initTimerView() {
   });
 
   function drawTime(seconds) {
-    let minutes = Math.floor(seconds / 60).toString().padStart(2, '0');
-    seconds = Math.floor(seconds - (minutes * 60)).toString().padStart(2, '0');
-    timerView.textContent = `${minutes}:${seconds}`;
+    timerView.textContent = util.secsToMinSecs(seconds);
   }
 }

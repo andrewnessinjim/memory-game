@@ -23,8 +23,12 @@
   .cards__card--closed {
     background: radial-gradient(lighten($primary-color, 30%),darken($primary-color, 30%))
   }
-  
+
   .cards__card:hover {
     cursor: pointer;
   }
+}
+
+.cards--hide {
+  display: none;
 }

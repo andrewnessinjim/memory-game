@@ -14,13 +14,18 @@ function initCardsView() {
     let card = event.detail.card;
     let div = document.querySelector(`.cards__card[card-index="${card.getIndex()}"]`)
     setCardState(div, card);
-  })
+  });
 
   gameState.getInstance().addEventListener('reset', function() {
     util.removeAllChildren(cardsContainer);
     drawCards();
+    cardsContainer.classList.remove('cards--hide');
     controller.idle = true;
-  })
+  });
+
+  gameState.getInstance().addEventListener('win', function() {
+    cardsContainer.classList.add('cards--hide');
+  });
 
   function drawCards() {
     for (let card of gameState.getInstance().getCards()) {

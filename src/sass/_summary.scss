@@ -1,0 +1,31 @@
+.summary {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  > * {
+    margin: 10px;
+  }
+
+  .summary__body {
+    display: table;
+    text-align: left;
+  }
+
+  .summary__playAgain {
+    padding: 8px;
+  }
+
+  .summary__moves, .summary__time {
+    display: table-row;
+
+    .summary__label, .summary__val {
+      display: table-cell;
+      padding: 8px;
+    }
+  }
+}
+
+.summary--hide {
+  display: none;
+}
