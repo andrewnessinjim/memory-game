@@ -1,11 +1,16 @@
 function initMovesView() {
-  let movesContainer = document.querySelector('.moves__val');
+  let movesVal = document.querySelector('.moves__val');
+  let summaryMovesVal = document.querySelector('.summary__movesVal')
 
   gameState.getInstance().addEventListener('moves',function(event) {
-    movesContainer.textContent = event.detail.moves;
-  })
+    movesVal.textContent = event.detail.moves;
+  });
 
   gameState.getInstance().addEventListener('reset',function() {
-    movesContainer.textContent = event.detail.moves;
-  })
+    movesVal.textContent = event.detail.moves;
+  });
+
+  gameState.getInstance().addEventListener('win',function() {
+    summaryMovesVal.textContent = gameState.getInstance().getMoves();
+  });
 }

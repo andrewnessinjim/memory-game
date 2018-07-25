@@ -26,11 +26,5 @@ let util = {
 
   toDecimal: function(number, decimalPoints) {
     return parseFloat(number.toFixed(decimalPoints));
-  },
-
-  secsToMinSecs: function(seconds) {
-    let minutes = Math.floor(seconds / 60).toString().padStart(2, '0');
-    seconds = Math.floor(seconds - (minutes * 60)).toString().padStart(2, '0');
-    return `${minutes}:${seconds}`;
   }
 }

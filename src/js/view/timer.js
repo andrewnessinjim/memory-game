@@ -1,18 +1,26 @@
 function initTimerView() {
   const timerView = document.querySelector('.timer__val');
+  const summaryTimerView = document.querySelector('.summary__timerVal');
+
   const gState = gameState.getInstance();
 
-  drawTime(gState.getTimerSeconds());
+  drawTime(gState.getTimerSeconds(), timerView);
 
   gState.addEventListener('timer', function(event) {
-    drawTime(event.detail.seconds);
+    drawTime(event.detail.seconds, timerView);
   });
 
   gState.addEventListener('reset', function(event) {
-    drawTime(event.detail.seconds);
+    drawTime(event.detail.seconds, timerView);
   });
 
-  function drawTime(seconds) {
-    timerView.textContent = util.secsToMinSecs(seconds);
+  gState.addEventListener('win', function(event) {
+    drawTime(gState.getTimerSeconds(), summaryTimerView);
+  });
+
+  function drawTime(seconds, view) {
+    let minutes = Math.floor(seconds / 60).toString().padStart(2, '0');
+    seconds = Math.floor(seconds - (minutes * 60)).toString().padStart(2, '0');
+    view.textContent = `${minutes}:${seconds}`;
   }
 }
