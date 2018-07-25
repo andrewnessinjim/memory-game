@@ -1,16 +1,17 @@
 function initMovesView() {
   let movesVal = document.querySelector('.moves__val');
-  let summaryMovesVal = document.querySelector('.summary__movesVal')
+  let summaryMovesVal = document.querySelector('.summary__movesVal');
+  const gState = gameState.getInstance();
 
-  gameState.getInstance().addEventListener('moves',function(event) {
+  gState.addEventListener('moves',function(event) {
     movesVal.textContent = event.detail.moves;
   });
 
-  gameState.getInstance().addEventListener('reset',function() {
+  gState.addEventListener('reset',function() {
     movesVal.textContent = event.detail.moves;
   });
 
-  gameState.getInstance().addEventListener('win',function() {
+  gState.addEventListener('win',function() {
     summaryMovesVal.textContent = gameState.getInstance().getMoves();
   });
 }

@@ -1,12 +1,14 @@
 function initStarsView() {
   const starsContainer = document.querySelector('.stars');
   const TOTAL_STARS = 5;
+  const gState = gameState.getInstance();
+
   drawStars(gameState.getInstance().getStars());
-  gameState.getInstance().addEventListener('stars', function(event) {
+  gState.addEventListener('stars', function(event) {
     drawStars(event.detail.stars);
   });
 
-  gameState.getInstance().addEventListener('reset', function(event) {
+  gState.addEventListener('reset', function(event) {
     drawStars(event.detail.stars);
   });
 

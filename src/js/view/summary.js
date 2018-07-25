@@ -1,11 +1,12 @@
 function initSummaryView() {
   let summary = document.querySelector('.summary');
+  const gState = gameState.getInstance();
 
-  gameState.getInstance().addEventListener('win',function(event) {
+  gState.addEventListener('win',function(event) {
     summary.classList.remove('summary--hide');
   });
 
-  gameState.getInstance().addEventListener('reset',function(event) {
+  gState.addEventListener('reset',function(event) {
     summary.classList.add('summary--hide');
   });
 }

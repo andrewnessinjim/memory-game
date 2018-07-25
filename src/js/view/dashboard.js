@@ -1,11 +1,12 @@
 function initDashboardView() {
   let dashboard = document.querySelector('.dashboard');
+  const gState = gameState.getInstance();
 
-  gameState.getInstance().addEventListener('win',function(event) {
+  gState.addEventListener('win',function(event) {
     dashboard.classList.add('dashboard--hide');
   });
 
-  gameState.getInstance().addEventListener('reset',function(event) {
+  gState.addEventListener('reset',function(event) {
     dashboard.classList.remove('dashboard--hide');
   })
 }

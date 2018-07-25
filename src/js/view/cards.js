@@ -1,5 +1,6 @@
 function initCardsView() {
   const cardsContainer = document.querySelector('.cards');
+  const gState = gameState.getInstance();
 
   drawCards();
 
@@ -10,20 +11,20 @@ function initCardsView() {
     }
   });
 
-  gameState.getInstance().addEventListener('state', function(event) {
+  gState.addEventListener('state', function(event) {
     let card = event.detail.card;
     let div = document.querySelector(`.cards__card[card-index="${card.getIndex()}"]`)
     setCardState(div, card);
   });
 
-  gameState.getInstance().addEventListener('reset', function() {
+  gState.addEventListener('reset', function() {
     util.removeAllChildren(cardsContainer);
     drawCards();
     cardsContainer.classList.remove('cards--hide');
     controller.idle = true;
   });
 
-  gameState.getInstance().addEventListener('win', function() {
+  gState.addEventListener('win', function() {
     cardsContainer.classList.add('cards--hide');
   });
 
