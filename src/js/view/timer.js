@@ -5,15 +5,15 @@ function initTimerView() {
 
   drawTime(gState.getTimerSeconds(), timerView);
 
-  gState.addEventListener('timer', function(event) {
-    drawTime(event.detail.seconds, timerView);
+  gState.addEventListener('timer', function() {
+    drawTime(gState.getTimerSeconds(), timerView);
   });
 
-  gState.addEventListener('reset', function(event) {
-    drawTime(event.detail.seconds, timerView);
+  gState.addEventListener('reset', function() {
+    drawTime(gState.getTimerSeconds(), timerView);
   });
 
-  gState.addEventListener('win', function(event) {
+  gState.addEventListener('win', function() {
     drawTime(gState.getTimerSeconds(), summaryTimerView);
   });
 

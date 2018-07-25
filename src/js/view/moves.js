@@ -4,14 +4,14 @@ function initMovesView() {
   const gState = gameState.getInstance();
 
   gState.addEventListener('moves',function(event) {
-    movesVal.textContent = event.detail.moves;
+    movesVal.textContent = gState.getMoves();
   });
 
   gState.addEventListener('reset',function() {
-    movesVal.textContent = event.detail.moves;
+    movesVal.textContent = gState.getMoves();
   });
 
   gState.addEventListener('win',function() {
-    summaryMovesVal.textContent = gameState.getInstance().getMoves();
+    summaryMovesVal.textContent = gState.getMoves();
   });
 }

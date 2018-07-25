@@ -17,11 +17,6 @@ let gameState = (function() {
   const _currentMatches = Symbol('currentMatches');
   const _maxMatches = Symbol('maxMatches');
   const _hasWon = Symbol('hasWon');
-  const _dispatchMovesEvent = Symbol('dispatchMovesEvent');
-  const _dispatchStarsEvent = Symbol('dispatchStarsEvent');
-  const _dispatchResetEvent = Symbol('dispatchResetEvent');
-  const _dispatchTimerEvent = Symbol('dispatchTimerEvent');
-  const _dispatchWinEvent = Symbol('dispatchWinEvent');
 
   class GameState extends EventTarget {
     constructor(moves, stars, cards, timerSeconds) {
@@ -35,44 +30,9 @@ let gameState = (function() {
       this[_hasWon] = false;
     }
 
-    [_dispatchMovesEvent]() {
-      let movesEvent = new CustomEvent('moves', {detail: {moves: this[_moves]}});
-      this.dispatchEvent(movesEvent);
-    }
-
-    [_dispatchStarsEvent]() {
-      let starsEvent = new CustomEvent('stars', {detail: {stars: this[_stars]}});
-      this.dispatchEvent(starsEvent);
-    }
-
-    [_dispatchResetEvent]() {
-      let resetEvent = new CustomEvent('reset', {
-        detail: {
-          moves: this[_moves],
-          stars: this[_stars],
-          seconds: this[_timerSeconds]
-        }
-      });
-      this.dispatchEvent(resetEvent);
-    }
-
-    [_dispatchTimerEvent]() {
-      let timerEvent = new CustomEvent('timer', {
-        detail: {
-          seconds: this[_timerSeconds]
-        }
-      });
-      this.dispatchEvent(timerEvent);
-    }
-
-    [_dispatchWinEvent]() {
-      let winEvent = new Event('win');
-      this.dispatchEvent(winEvent);
-    }
-
     win() {
       this[_hasWon] = true;
-      this[_dispatchWinEvent]();
+      this.dispatchEvent(new Event('win'));
     }
 
     incMatches() {
@@ -81,17 +41,17 @@ let gameState = (function() {
 
     incMoves() {
       this[_moves] += 1;
-      this[_dispatchMovesEvent]();
+      this.dispatchEvent(new Event('moves'));
     }
 
     setStars(stars) {
       this[_stars] = stars;
-      this[_dispatchStarsEvent]();
+      this.dispatchEvent(new Event('stars'));
     }
 
     incTimerSeconds() {
       this[_timerSeconds] += 1;
-      this[_dispatchTimerEvent]();
+      this.dispatchEvent(new Event('timer'));
     }
 
     getCards(){
@@ -150,7 +110,7 @@ let gameState = (function() {
       this[_currentMatches] = 0;
       this[_maxMatches] = this[_cards].length / 2;
       this[_hasWon] = false;
-      this[_dispatchResetEvent]();
+      this.dispatchEvent(new Event('reset'));
     }
   }
 

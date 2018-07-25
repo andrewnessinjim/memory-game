@@ -4,12 +4,12 @@ function initStarsView() {
   const gState = gameState.getInstance();
 
   drawStars(gameState.getInstance().getStars());
-  gState.addEventListener('stars', function(event) {
-    drawStars(event.detail.stars);
+  gState.addEventListener('stars', function() {
+    drawStars(gState.getStars());
   });
 
-  gState.addEventListener('reset', function(event) {
-    drawStars(event.detail.stars);
+  gState.addEventListener('reset', function() {
+    drawStars(gState.getStars());
   });
 
   function drawStars(stars) {
