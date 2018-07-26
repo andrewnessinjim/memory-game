@@ -23,9 +23,11 @@
 .title {
   width: 100%;
   text-align: center;
+  padding: 5px;
 
   .title__val {
-    margin-top: 10px;
+    font-family: 'Chicle', cursive;
+    font-weight: 100;
   }
 }
 
@@ -65,17 +67,18 @@
 
 .controls {
   width: 100%;
-  display: flex;
+  text-align: center;
+  padding: 5px 0;
 }
 
-.controls__reset {
+.controls__control {
   height: 40px;
   margin: auto;
   transition: 0.2s transform;
 }
 
 @media (pointer: fine) {
-  .controls__reset:hover {
+  .controls__control:hover {
     cursor: pointer;
     transform: scale(1.1);
     box-shadow: 2px 2px 2px black;
@@ -83,7 +86,7 @@
   }
 }
 
-.controls__reset:active {
+.controls__control:active {
   cursor: pointer;
   transform: scale(0.8);
   box-shadow: unset;
