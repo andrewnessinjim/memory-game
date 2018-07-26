@@ -53,33 +53,6 @@
   }
 }
 
-@keyframes right-wobble {
-  0% {
-    transform: rotate(195deg);
-  }
-
-  50% {
-    transform: rotate(165deg);
-  }
-
-  100% {
-    transform: rotate(195deg);
-  }
-}
-
-@keyframes left-wobble {
-  0% {
-    transform: rotate(15deg);
-  }
-
-  50% {
-    transform: rotate(-15deg);
-  }
-
-  100% {
-    transform: rotate(15deg);
-  }
-}
 .magnet--toRight {
   right: 0px;
   transform: rotate(180deg);

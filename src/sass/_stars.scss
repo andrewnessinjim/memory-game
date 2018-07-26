@@ -13,11 +13,6 @@
     padding-bottom: 18%;
   }
 
-  @keyframes rotate {
-    from {transform: rotate(0deg);}
-    to {transform: rotate(360deg);}
-  }
-
   .stars__star--rotate {
     animation-name: rotate;
     animation-duration: 1s;
