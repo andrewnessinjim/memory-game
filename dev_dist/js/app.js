@@ -27,7 +27,259 @@ document.addEventListener('DOMContentLoaded', function() {
   initTimerView();
   initMovesView();
   initResetButton();
+  initMagnetButton();
 });
+if (!String.prototype.padStart) {
+  String.prototype.padStart = function padStart(targetLength,padString) {
+      targetLength = targetLength>>0; //truncate if number or convert non-number to 0;
+      padString = String((typeof padString !== 'undefined' ? padString : ' '));
+      if (this.length > targetLength) {
+          return String(this);
+      }
+      else {
+          targetLength = targetLength-this.length;
+          if (targetLength > padString.length) {
+              padString += padString.repeat(targetLength/padString.length); //append to original to ensure we are longer than needed
+          }
+          return padString.slice(0,targetLength) + String(this);
+      }
+  };
+}
+let util = {
+  shuffle: function shuffle(array) {
+    var currentIndex = array.length, temporaryValue, randomIndex;
+  
+    // While there remain elements to shuffle...
+    while (0 !== currentIndex) {
+  
+      // Pick a remaining element...
+      randomIndex = Math.floor(Math.random() * currentIndex);
+      currentIndex -= 1;
+  
+      // And swap it with the current element.
+      temporaryValue = array[currentIndex];
+      array[currentIndex] = array[randomIndex];
+      array[randomIndex] = temporaryValue;
+    }
+  
+    return array;
+  },
+
+  removeAllChildren: function (parent) {
+    while(parent.firstChild) {
+      parent.removeChild(parent.firstChild);
+    }
+  },
+
+  toDecimal: function(number, decimalPoints) {
+    return parseFloat(number.toFixed(decimalPoints));
+  }
+}
+function initCardsView() {
+  const cardsContainer = document.querySelector('.cards');
+  const gState = gameState.getInstance();
+
+  drawCards();
+
+  cardsContainer.addEventListener('click', function(event) {
+    const cardIndex = event.target.getAttribute('card-index');
+    if(cardIndex) { //Ensure a card was clicked
+      controller.cardClicked(cardIndex);
+    }
+  });
+
+  gState.addEventListener('state', function(event) {
+    let card = event.detail.card;
+    let div = document.querySelector(`.cards__card[card-index="${card.getIndex()}"]`)
+    setCardState(div, card);
+  });
+
+  gState.addEventListener('reset', function() {
+    util.removeAllChildren(cardsContainer);
+    drawCards();
+    cardsContainer.classList.remove('cards--hide');
+    controller.idle = true;
+  });
+
+  gState.addEventListener('win', function() {
+    cardsContainer.classList.add('cards--hide');
+  });
+
+  function drawCards() {
+    for (let card of gameState.getInstance().getCards()) {
+      cardsContainer.appendChild(createCardDiv(card));
+    }
+    function createCardDiv(card) {
+      const div = document.createElement('div');
+      div.classList.add('cards__card');
+      div.setAttribute('card_id', card.getId());
+      div.setAttribute('card-index', card.getIndex());
+      setCardState(div, card);
+      return div;
+    }
+  }
+
+  function setCardState(div, card) {
+    div.classList.remove('cards__card--closed');
+    if(card.getState() === cards.STATE_CLOSED) {
+      div.classList.add('cards__card--closed');
+      div.style.backgroundImage = '';
+    } else if (
+      card.getState() === cards.STATE_OPEN
+      || card.getState() === cards.STATE_WAITING
+    ){
+      div.style.backgroundImage = `url(${card.getURL()})`;
+    }
+  }
+}
+function initResetButton() {
+  const resetButton = document.querySelector('.controls__reset');
+  const playAgain = document.querySelector('.summary__playAgain');
+
+  resetButton.addEventListener('click', function() {
+    controller.reset();
+  });
+
+  playAgain.addEventListener('click', function() {
+    controller.reset();
+  });
+}
+
+function initMagnetButton() {
+  const magnetButton = document.querySelector('.magnet');
+  const header = document.querySelector('.header');
+
+  magnetButton.addEventListener('click', function() {
+    header.classList.toggle('header--showTitle');
+    header.classList.toggle('header--showControls');
+
+    magnetButton.classList.toggle('magnet--toRight');
+    magnetButton.classList.toggle('magnet--toLeft');
+  });
+}
+function initDashboardView() {
+  const dashboard = document.querySelector('.dashboard');
+  const gState = gameState.getInstance();
+
+  gState.addEventListener('win',function(event) {
+    dashboard.classList.add('dashboard--hide');
+  });
+
+  gState.addEventListener('reset',function(event) {
+    dashboard.classList.remove('dashboard--hide');
+  })
+}
+function initMovesView() {
+  const movesVal = document.querySelector('.moves__val');
+  const summaryMovesVal = document.querySelector('.summary__movesVal');
+  const gState = gameState.getInstance();
+
+  gState.addEventListener('moves',function(event) {
+    movesVal.textContent = gState.getMoves();
+  });
+
+  gState.addEventListener('reset',function() {
+    movesVal.textContent = gState.getMoves();
+  });
+
+  gState.addEventListener('win',function() {
+    summaryMovesVal.textContent = gState.getMoves();
+  });
+}
+function initStarsView() {
+  const dashboardStarsContainer = document.querySelector('.dashboard .stars');
+  const summaryStarsContainer = document.querySelector('.summary .stars');
+  const TOTAL_STARS = 5;
+  const gState = gameState.getInstance();
+
+  drawStars(gState.getStars(), dashboardStarsContainer);
+
+  gState.addEventListener('stars', function() {
+    drawStars(gState.getStars(), dashboardStarsContainer);
+  });
+
+  gState.addEventListener('reset', function() {
+    drawStars(gState.getStars(), dashboardStarsContainer);
+  });
+
+  gState.addEventListener('win', function() {
+    drawStars(gState.getStars(), summaryStarsContainer, true);
+  });
+
+  function drawStars(stars, starsContainer, animate) {
+    util.removeAllChildren(starsContainer);
+    let starsPercentage = util.toDecimal(stars, 2);
+    
+    starsAppended = 0;
+    while (starsPercentage >= util.toDecimal((1 / TOTAL_STARS), 2)) { //One star can be completely filled
+      starsContainer.appendChild(createStarDiv('yellow', animate));
+      starsPercentage = util.toDecimal(starsPercentage - 0.20, 2); //Deduct one star's worth percentage
+      starsAppended++;
+    }
+    if (starsAppended != TOTAL_STARS) {
+      let overall = Math.floor(starsPercentage * 100) //percentage
+      let singleStar = Math.floor(overall / 20 * 100);
+      
+      starsContainer.appendChild(
+        createStarDiv(
+          `linear-gradient(to right, yellow 0% ,yellow ${singleStar}% ,grey ${singleStar}% ,grey 100%)`
+        )
+      );
+      starsAppended++;
+    }
+    while (starsAppended < TOTAL_STARS) {
+      starsContainer.appendChild(createStarDiv('grey'));
+      starsAppended++;
+    }
+  }
+
+  function createStarDiv(background, animate) {
+    const starDiv = document.createElement('div');
+    starDiv.classList.add('stars__star');
+    if(animate) {
+      starDiv.classList.add('stars__star--rotate');
+    }
+    starDiv.style.background = background;
+    return starDiv;
+  }
+}
+function initSummaryView() {
+  const summary = document.querySelector('.summary');
+  const gState = gameState.getInstance();
+
+  gState.addEventListener('win',function(event) {
+    summary.classList.remove('summary--hide');
+  });
+
+  gState.addEventListener('reset',function(event) {
+    summary.classList.add('summary--hide');
+  });
+}
+function initTimerView() {
+  const gState = gameState.getInstance();
+  const timerView = document.querySelector('.timer__val');
+  const summaryTimerView = document.querySelector('.summary__timerVal');
+
+  drawTime(gState.getTimerSeconds(), timerView);
+
+  gState.addEventListener('timer', function() {
+    drawTime(gState.getTimerSeconds(), timerView);
+  });
+
+  gState.addEventListener('reset', function() {
+    drawTime(gState.getTimerSeconds(), timerView);
+  });
+
+  gState.addEventListener('win', function() {
+    drawTime(gState.getTimerSeconds(), summaryTimerView);
+  });
+
+  function drawTime(seconds, view) {
+    let minutes = Math.floor(seconds / 60).toString().padStart(2, '0');
+    seconds = Math.floor(seconds - (minutes * 60)).toString().padStart(2, '0');
+    view.textContent = `${minutes}:${seconds}`;
+  }
+}
 /*
 cards object exposes a Card class which holds data related to a single card.
 It also exposes 3 constants, to be used as the values for the state of the card:
@@ -402,241 +654,3 @@ let gameState = (function() {
     }
   }
 })();
-if (!String.prototype.padStart) {
-  String.prototype.padStart = function padStart(targetLength,padString) {
-      targetLength = targetLength>>0; //truncate if number or convert non-number to 0;
-      padString = String((typeof padString !== 'undefined' ? padString : ' '));
-      if (this.length > targetLength) {
-          return String(this);
-      }
-      else {
-          targetLength = targetLength-this.length;
-          if (targetLength > padString.length) {
-              padString += padString.repeat(targetLength/padString.length); //append to original to ensure we are longer than needed
-          }
-          return padString.slice(0,targetLength) + String(this);
-      }
-  };
-}
-let util = {
-  shuffle: function shuffle(array) {
-    var currentIndex = array.length, temporaryValue, randomIndex;
-  
-    // While there remain elements to shuffle...
-    while (0 !== currentIndex) {
-  
-      // Pick a remaining element...
-      randomIndex = Math.floor(Math.random() * currentIndex);
-      currentIndex -= 1;
-  
-      // And swap it with the current element.
-      temporaryValue = array[currentIndex];
-      array[currentIndex] = array[randomIndex];
-      array[randomIndex] = temporaryValue;
-    }
-  
-    return array;
-  },
-
-  removeAllChildren: function (parent) {
-    while(parent.firstChild) {
-      parent.removeChild(parent.firstChild);
-    }
-  },
-
-  toDecimal: function(number, decimalPoints) {
-    return parseFloat(number.toFixed(decimalPoints));
-  }
-}
-function initCardsView() {
-  const cardsContainer = document.querySelector('.cards');
-  const gState = gameState.getInstance();
-
-  drawCards();
-
-  cardsContainer.addEventListener('click', function(event) {
-    const cardIndex = event.target.getAttribute('card-index');
-    if(cardIndex) { //Ensure a card was clicked
-      controller.cardClicked(cardIndex);
-    }
-  });
-
-  gState.addEventListener('state', function(event) {
-    let card = event.detail.card;
-    let div = document.querySelector(`.cards__card[card-index="${card.getIndex()}"]`)
-    setCardState(div, card);
-  });
-
-  gState.addEventListener('reset', function() {
-    util.removeAllChildren(cardsContainer);
-    drawCards();
-    cardsContainer.classList.remove('cards--hide');
-    controller.idle = true;
-  });
-
-  gState.addEventListener('win', function() {
-    cardsContainer.classList.add('cards--hide');
-  });
-
-  function drawCards() {
-    for (let card of gameState.getInstance().getCards()) {
-      cardsContainer.appendChild(createCardDiv(card));
-    }
-    function createCardDiv(card) {
-      const div = document.createElement('div');
-      div.classList.add('cards__card');
-      div.setAttribute('card_id', card.getId());
-      div.setAttribute('card-index', card.getIndex());
-      setCardState(div, card);
-      return div;
-    }
-  }
-
-  function setCardState(div, card) {
-    div.classList.remove('cards__card--closed');
-    if(card.getState() === cards.STATE_CLOSED) {
-      div.classList.add('cards__card--closed');
-      div.style.backgroundImage = '';
-    } else if (
-      card.getState() === cards.STATE_OPEN
-      || card.getState() === cards.STATE_WAITING
-    ){
-      div.style.backgroundImage = `url(${card.getURL()})`;
-    }
-  }
-}
-function initDashboardView() {
-  const dashboard = document.querySelector('.dashboard');
-  const gState = gameState.getInstance();
-
-  gState.addEventListener('win',function(event) {
-    dashboard.classList.add('dashboard--hide');
-  });
-
-  gState.addEventListener('reset',function(event) {
-    dashboard.classList.remove('dashboard--hide');
-  })
-}
-function initMovesView() {
-  const movesVal = document.querySelector('.moves__val');
-  const summaryMovesVal = document.querySelector('.summary__movesVal');
-  const gState = gameState.getInstance();
-
-  gState.addEventListener('moves',function(event) {
-    movesVal.textContent = gState.getMoves();
-  });
-
-  gState.addEventListener('reset',function() {
-    movesVal.textContent = gState.getMoves();
-  });
-
-  gState.addEventListener('win',function() {
-    summaryMovesVal.textContent = gState.getMoves();
-  });
-}
-function initResetButton() {
-  const resetButton = document.querySelector('.controls__reset');
-  const playAgain = document.querySelector('.summary__playAgain');
-
-  resetButton.addEventListener('click', function() {
-    controller.reset();
-  });
-
-  playAgain.addEventListener('click', function() {
-    controller.reset();
-  });
-}
-function initStarsView() {
-  const dashboardStarsContainer = document.querySelector('.dashboard .stars');
-  const summaryStarsContainer = document.querySelector('.summary .stars');
-  const TOTAL_STARS = 5;
-  const gState = gameState.getInstance();
-
-  drawStars(gState.getStars(), dashboardStarsContainer);
-
-  gState.addEventListener('stars', function() {
-    drawStars(gState.getStars(), dashboardStarsContainer);
-  });
-
-  gState.addEventListener('reset', function() {
-    drawStars(gState.getStars(), dashboardStarsContainer);
-  });
-
-  gState.addEventListener('win', function() {
-    drawStars(gState.getStars(), summaryStarsContainer, true);
-  });
-
-  function drawStars(stars, starsContainer, animate) {
-    util.removeAllChildren(starsContainer);
-    let starsPercentage = util.toDecimal(stars, 2);
-    
-    starsAppended = 0;
-    while (starsPercentage >= util.toDecimal((1 / TOTAL_STARS), 2)) { //One star can be completely filled
-      starsContainer.appendChild(createStarDiv('yellow', animate));
-      starsPercentage = util.toDecimal(starsPercentage - 0.20, 2); //Deduct one star's worth percentage
-      starsAppended++;
-    }
-    if (starsAppended != TOTAL_STARS) {
-      let overall = Math.floor(starsPercentage * 100) //percentage
-      let singleStar = Math.floor(overall / 20 * 100);
-      
-      starsContainer.appendChild(
-        createStarDiv(
-          `linear-gradient(to right, yellow 0% ,yellow ${singleStar}% ,grey ${singleStar}% ,grey 100%)`
-        )
-      );
-      starsAppended++;
-    }
-    while (starsAppended < TOTAL_STARS) {
-      starsContainer.appendChild(createStarDiv('grey'));
-      starsAppended++;
-    }
-  }
-
-  function createStarDiv(background, animate) {
-    const starDiv = document.createElement('div');
-    starDiv.classList.add('stars__star');
-    if(animate) {
-      starDiv.classList.add('stars__star--rotate');
-    }
-    starDiv.style.background = background;
-    return starDiv;
-  }
-}
-function initSummaryView() {
-  const summary = document.querySelector('.summary');
-  const gState = gameState.getInstance();
-
-  gState.addEventListener('win',function(event) {
-    summary.classList.remove('summary--hide');
-  });
-
-  gState.addEventListener('reset',function(event) {
-    summary.classList.add('summary--hide');
-  });
-}
-function initTimerView() {
-  const gState = gameState.getInstance();
-  const timerView = document.querySelector('.timer__val');
-  const summaryTimerView = document.querySelector('.summary__timerVal');
-
-  drawTime(gState.getTimerSeconds(), timerView);
-
-  gState.addEventListener('timer', function() {
-    drawTime(gState.getTimerSeconds(), timerView);
-  });
-
-  gState.addEventListener('reset', function() {
-    drawTime(gState.getTimerSeconds(), timerView);
-  });
-
-  gState.addEventListener('win', function() {
-    drawTime(gState.getTimerSeconds(), summaryTimerView);
-  });
-
-  function drawTime(seconds, view) {
-    let minutes = Math.floor(seconds / 60).toString().padStart(2, '0');
-    seconds = Math.floor(seconds - (minutes * 60)).toString().padStart(2, '0');
-    view.textContent = `${minutes}:${seconds}`;
-  }
-}
