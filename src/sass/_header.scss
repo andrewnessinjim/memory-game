@@ -1,0 +1,16 @@
+.header {
+  min-height: 50px;
+  width: 100%;
+  display: flex;
+  background: radial-gradient($header-radial-1, $header-radial-2);
+  border-bottom: 2px ridge black;
+  border-bottom-left-radius: 3px;
+  border-bottom-right-radius: 3px;
+  box-shadow: 3px 3px 3px grey;
+  margin-bottom: 10px;
+}
+
+.title {
+  margin: auto;
+  font-size: 30px;
+}
