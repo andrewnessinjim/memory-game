@@ -38,8 +38,10 @@
     background: radial-gradient(lighten($primary-color, 30%),darken($primary-color, 30%))
   }
 
-  .cards__card:hover {
-    cursor: pointer;
+  @media (pointer: fine) {
+    .cards__card:hover {
+      cursor: pointer;
+    }
   }
 }
 
