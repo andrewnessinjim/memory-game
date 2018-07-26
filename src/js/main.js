@@ -7,4 +7,6 @@ document.addEventListener('DOMContentLoaded', function() {
   initMovesView();
   initResetButton();
   initMagnetButton();
+
+  document.querySelector('.app').classList.remove('app--hide');
 });
