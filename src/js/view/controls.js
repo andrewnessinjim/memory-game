@@ -1,6 +1,12 @@
 function initResetButton() {
   const resetButton = document.querySelector('.controls__reset');
   const playAgain = document.querySelector('.summary__playAgain');
+  const directionsButton = document.querySelector('.controls__directions');
+  const attributionsButton = document.querySelector('.controls__attributions');
+  const modal = document.querySelector('.modal');
+  const modalClose = document.querySelector('.modal__close');
+  const directionsContent = document.querySelector('.directions');
+  const attributionsContent = document.querySelector('.attributions');
 
   resetButton.addEventListener('click', function() {
     controller.reset();
@@ -8,6 +14,22 @@ function initResetButton() {
 
   playAgain.addEventListener('click', function() {
     controller.reset();
+  });
+
+  directionsButton.addEventListener('click', function() {
+    modal.classList.add('modal--show');
+    directionsContent.classList.add('directions--show');
+  });
+
+  attributionsButton.addEventListener('click', function() {
+    modal.classList.add('modal--show');
+    attributionsContent.classList.add('attributions--show');
+  });
+
+  modalClose.addEventListener('click', function() {
+    modal.classList.remove('modal--show');
+    directionsContent.classList.remove('directions--show');
+    attributionsContent.classList.remove('attributions--show');
   });
 }
 

@@ -12,7 +12,8 @@
   <div class="app app--hide">
     <header class="header header--showTitle" >
       <div class="controls">
-        <img class="controls__control" src="./images/directions.svg" alt="directions" title="Directions">
+          <img class="controls__control controls__attributions" src="./images/credits.svg" alt="Attributions" title="Attributions">
+        <img class="controls__control controls__directions" src="./images/directions.svg" alt="directions" title="Directions">
         <img class="controls__control controls__reset" src="./images/reset.svg" alt="RESET" title="Reset">
       </div>
       <div class="title">
@@ -51,6 +52,67 @@
         <button class="summary__playAgain">Play Again</button>
 
       </div>
+
+      <div class="modal">
+          <div class="modal__content">
+              <span class="modal__close">&times;</span>
+              <div class="modal__data">
+                <section class="directions">
+                  <h2 class="directions__header">Directions</h2>
+                  <ul class="directions__list">
+                    <li>This game tests your memorization skills! You will be presented with a grid
+                      of cards laid face down. You can click on any card to reveal it. Once you have
+                      revealed two cards, they will stay revealed if they are the same card. Otherwise,
+                      they will be turned face down again. Your goal is to pair up all matching cards.
+                    </li>
+                    <li>Revealing two cards is considered as 1 move.</li>
+                    <li>The timer will start once you click on the first card.</li>
+                    <li>Use the <img src="images/reset.svg" alt="RESET" style="width:20px"> button to reset the game and start over</li>
+                    <li>Click on <img src="images/magnet.svg" alt="MAGNET" style="width:20px;transform:rotate(180deg)"> to reveal options menu.</li>
+                    <li>Click on <img src="images/magnet.svg" alt="MAGNET" style="width:20px"> to hide options menu. 
+                      This magnet will appear when you reveal the options menu.</li>
+                    <li>Click on <img src="images/directions.svg" alt="DIRECTIONS" style="width:20px"> to read these directions again.</li>
+                  </ul>
+                </section>
+                <section class="attributions">
+                  <h2 class="attributions__header">Attributions</h2>
+                  <ul class="attributions__list">
+                    <li>
+                      <div>Icons made by
+                        <a
+                          href="http://www.freepik.com"
+                          title="Freepik">
+                            Freepik
+                        </a>
+                        from
+                        <a
+                          href="https://www.flaticon.com/"
+                          title="Flaticon">
+                            www.flaticon.com
+                        </a>
+                        is licensed by
+                        <a
+                          href="http://creativecommons.org/licenses/by/3.0/"
+                          title="Creative Commons BY 3.0"
+                          target="_blank">
+                            CC 3.0 BY
+                        </a>
+                      </div>
+                    </li>
+                    <li>
+                      <a
+                        title="By Vicipaedianus x [CC BY-SA 4.0 (https://creativecommons.org/licenses/by-sa/4.0)], from Wikimedia Commons"
+                        href="https://commons.wikimedia.org/wiki/File:Circle-icons-trophy_(dark).svg">
+                        <img class="trophy-attribution" width="256" alt="Circle-icons-trophy (dark)"
+                          src="https://upload.wikimedia.org/wikipedia/commons/thumb/f/f8/Circle-icons-trophy_%28dark%29.svg/256px-Circle-icons-trophy_%28dark%29.svg.png">
+                      </a>
+                    </li>
+                  </ul>
+                </section>
+              </div>
+          </div>
+      </div>
+
     </div>
   </div>
 </body>
