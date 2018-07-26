@@ -10,22 +10,25 @@
 </head>
 <body>
   <div class="app">
-    <header class="header" >
-      <h1 class="title">Memory Game</h1>
+    <header class="header header--showTitle" >
+      <div class="controls">
+          <img class="controls__reset" src="./images/reset.svg" alt="RESET" title="Reset">
+      </div>
+      <div class="title">
+          <h1 class="title__val">Memory Game</h1>
+          <img class="magnet magnet--toRight" src="images/magnet.svg" alt="MENU">
+      </div>
     </header>
     <div class="gameboard">
       <div class="dashboard">
         <div class="timer">
           <p class="timer__val"></p>
         </div>
+        <div class="stars">
+          </div>
         <div class="moves">
           <p class="moves__val">0</p>
           <div class="moves__label">MOVES</div>
-        </div>
-        <div class="stars">
-        </div>
-        <div class="controls">
-          <img class="controls__reset" src="./images/reset.svg" alt="RESET" title="Reset">
         </div>
       </div>
       <div class="cards">

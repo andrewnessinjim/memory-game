@@ -1,16 +1,113 @@
 .header {
-  min-height: 50px;
-  width: 100%;
+  width: 200%;
   display: flex;
+  position: relative;
   background: radial-gradient($header-radial-1, $header-radial-2);
   border-bottom: 2px ridge black;
   border-bottom-left-radius: 3px;
   border-bottom-right-radius: 3px;
   box-shadow: 3px 3px 3px grey;
   margin-bottom: 10px;
+  height: 50px;
+  transition: 1s all;
+}
+
+.header--showTitle {
+  transform: translateX(-50%);
+}
+
+.header--showControls {
+  transform: translateX(0);
 }
 
 .title {
+  width: 100%;
+  text-align: center;
+
+  .title__val {
+    margin-top: 10px;
+  }
+}
+
+.magnet {
+  width: 40px;
+  position: absolute;
+  padding: 5px;
+  cursor: pointer;
+  top: 0px;
+  transition: 1s all;
+}
+
+.magnet:hover {
+  animation-duration: 0.1s;
+  animation-iteration-count: infinite;
+}
+
+.magnet--toRight.magnet:hover {
+  animation-name: right-wobble;
+}
+
+.magnet--toLeft.magnet:hover {
+  animation-name: left-wobble;
+}
+
+@keyframes right-wobble {
+  0% {
+    transform: rotate(195deg);
+  }
+
+  50% {
+    transform: rotate(165deg);
+  }
+
+  100% {
+    transform: rotate(195deg);
+  }
+}
+
+@keyframes left-wobble {
+  0% {
+    transform: rotate(15deg);
+  }
+
+  50% {
+    transform: rotate(-15deg);
+  }
+
+  100% {
+    transform: rotate(15deg);
+  }
+}
+.magnet--toRight {
+  right: 0px;
+  transform: rotate(180deg);
+}
+
+.magnet--toLeft {
+  left: 0px;
+  transform: rotate(0deg);
+}
+
+.controls {
+  width: 100%;
+  display: flex;
+}
+
+.controls__reset {
+  height: 40px;
   margin: auto;
-  font-size: 30px;
+  transition: 0.2s transform;
+}
+
+.controls__reset:hover {
+  cursor: pointer;
+  transform: scale(1.1);
+  box-shadow: 2px 2px 2px black;
+  border-radius: 50%;
+}
+
+.controls__reset:active {
+  cursor: pointer;
+  transform: scale(0.8);
+  box-shadow: unset;
 }
