@@ -3,7 +3,7 @@
   display: flex;
   position: relative;
   background: radial-gradient($header-radial-1, $header-radial-2);
-  border-bottom: 2px ridge black;
+  border-bottom: 1px ridge rgba(0, 0, 0, 0.5);
   border-bottom-left-radius: 3px;
   border-bottom-right-radius: 3px;
   box-shadow: 3px 3px 3px grey;
