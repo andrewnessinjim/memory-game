@@ -27,6 +27,10 @@
 
   .summary__trophy {
     max-width: 150px;
+    animation-name: rise-and-fall;
+    animation-duration: 3s;
+    animation-iteration-count: infinite;
+    border-radius: 50%;
   }
 }
 

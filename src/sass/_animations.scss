@@ -24,13 +24,16 @@
 
 @keyframes rise-and-fall {
   0% {
-    box-shadow: 0px 0px 4px rgba(0, 0, 0, 0.3);
+    box-shadow: 0px 0px 4px rgba(0, 0, 0, 0.7);
+    transform: scale((1));
   }
   50% {
-    box-shadow: 8px 8px 4px rgba(0, 0, 0, 0.3);
+    box-shadow: 8px 8px 4px rgba(0, 0, 0, 0.7);
+    transform: scale(1.1);
   }
   100% {
-    box-shadow: 0px 0px 4px rgba(0, 0, 0, 0.3);
+    box-shadow: 0px 0px 4px rgba(0, 0, 0, 0.7);
+    transform: scale(1);
   }
 }
 
