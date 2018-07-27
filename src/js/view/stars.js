@@ -2,6 +2,7 @@ function initStarsView() {
   const dashboardStarsContainer = document.querySelector('.dashboard .stars');
   const summaryStarsContainer = document.querySelector('.summary .stars');
   const TOTAL_STARS = 5;
+  const STAR_COLOR = 'rgb(219, 219, 49)';
   const gState = gameState.getInstance();
 
   drawStars(gState.getStars(), dashboardStarsContainer);
@@ -24,7 +25,7 @@ function initStarsView() {
     
     starsAppended = 0;
     while (starsPercentage >= util.toDecimal((1 / TOTAL_STARS), 2)) { //One star can be completely filled
-      starsContainer.appendChild(createStarDiv('yellow', animate));
+      starsContainer.appendChild(createStarDiv(STAR_COLOR, animate));
       starsPercentage = util.toDecimal(starsPercentage - 0.20, 2); //Deduct one star's worth percentage
       starsAppended++;
     }
@@ -34,7 +35,7 @@ function initStarsView() {
       
       starsContainer.appendChild(
         createStarDiv(
-          `linear-gradient(to right, yellow 0% ,yellow ${singleStar}% ,grey ${singleStar}% ,grey 100%)`
+          `linear-gradient(to right, ${STAR_COLOR} 0% ,${STAR_COLOR} ${singleStar}% ,grey ${singleStar}% ,grey 100%)`
         )
       );
       starsAppended++;
