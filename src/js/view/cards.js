@@ -67,16 +67,17 @@ function initCardsView() {
     backDiv.classList.remove('card__back--hide');
 
     if(card.getState() === cards.STATE_CLOSED) {
-
       frontDiv.classList.add('card__front--hide');
       backDiv.classList.add('card__back--show');
 
-    } else if (
-      card.getState() === cards.STATE_OPEN
-      || card.getState() === cards.STATE_WAITING
-    ){
+    } else if (card.getState() === cards.STATE_OPEN){
       frontDiv.classList.add('card__front--show');
       backDiv.classList.add('card__back--hide');
+
+    } else if(card.getState() === cards.STATE_WAITING) {
+      frontDiv.classList.add('card__front--show');
+      backDiv.classList.add('card__back--hide');
+
     }
   }
 }

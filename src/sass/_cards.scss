@@ -2,9 +2,19 @@
   display: flex;
   flex-wrap: wrap;
   justify-content: space-around;
-  background: radial-gradient(lighten($primary-color, 30%),lighten($primary-color, 20%));
+  background: linear-gradient(
+    to bottom right,
+    lighten($primary-color, 10%),
+    darken($primary-color, 20%),
+    lighten($primary-color, 10%));
+  //background: radial-gradient(lighten($primary-color, 30%),darken($primary-color, 40%));
   padding: 10px;
   border-radius: 10px;
+  box-shadow: 3px 3px 5px black;
+
+  .card:active {
+    transform: scale(0.95);
+  }
 
   .card {
     width: 100px;
@@ -20,12 +30,16 @@
       border-radius: 10px;
       position: absolute;
       backface-visibility: hidden;
-      transition: 0.3s linear transform;
+      transition: 0.3s linear all;
       pointer-events: none;
     }
 
     .card__front, .card__back {
       @extend %cardFace;
+    }
+
+    .card__front {
+      background: lighten($primary-color, 30%);
     }
 
     .card__front--hide {
@@ -34,6 +48,10 @@
 
     .card__front--show {
       transform:  rotateY(0deg);
+    }
+
+    .card__front--matched {
+      background: lightgreen;
     }
 
     .card__back--hide {
@@ -45,7 +63,7 @@
     }
 
     .card__back {
-      background: radial-gradient(lighten($primary-color, 30%),darken($primary-color, 30%))
+      background: darken($primary-color, 40%);
     }
   }
 
