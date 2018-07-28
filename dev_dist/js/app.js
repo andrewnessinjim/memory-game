@@ -26,7 +26,8 @@ document.addEventListener('DOMContentLoaded', function() {
   initStarsView();
   initTimerView();
   initMovesView();
-  initResetButton();
+  initWelcomeForm();
+  initControls();
   initMagnetButton();
 
   document.querySelector('.app').classList.remove('app--hide');
@@ -533,7 +534,7 @@ function initCardsView() {
     }
   }
 }
-function initResetButton() {
+function initControls() {
   const resetButton = document.querySelector('.controls__reset');
   const playAgain = document.querySelector('.summary__playAgain');
   const directionsButton = document.querySelector('.controls__directions');
@@ -552,8 +553,7 @@ function initResetButton() {
   });
 
   directionsButton.addEventListener('click', function() {
-    modal.classList.add('modal--show');
-    directionsContent.classList.add('directions--show');
+    revealDirections();
   });
 
   attributionsButton.addEventListener('click', function() {
@@ -566,6 +566,17 @@ function initResetButton() {
     directionsContent.classList.remove('directions--show');
     attributionsContent.classList.remove('attributions--show');
   });
+
+  function revealDirections() {
+    modal.classList.add('modal--show');
+    directionsContent.classList.add('directions--show');
+  }
+
+  //Reveal directions on app startup
+  let welcome = document.cookie.replace(/(?:(?:^|.*;\s*)welcome\s*\=\s*([^;]*).*$)|^.*$/, "$1");
+  if(!welcome || welcome === 'yes') {
+    revealDirections();
+  }
 }
 
 function initMagnetButton() {
@@ -578,6 +589,25 @@ function initMagnetButton() {
 
     magnetButton.classList.toggle('magnet--toRight');
     magnetButton.classList.toggle('magnet--toLeft');
+  });
+}
+
+function initWelcomeForm() {
+  const welcomeCheckbox = document.getElementById('welcome');
+  let welcome = document.cookie.replace(/(?:(?:^|.*;\s*)welcome\s*\=\s*([^;]*).*$)|^.*$/, "$1");
+
+  if(welcome === 'yes') {
+    welcomeCheckbox.checked = false;
+  } else {
+    welcomeCheckbox.checked = true;
+  }
+
+  welcomeCheckbox.addEventListener('click', function() {
+    if(welcomeCheckbox.checked) {
+      document.cookie = "welcome=no";
+    } else {
+      document.cookie = "welcome=yes";
+    }
   });
 }
 function initDashboardView() {
