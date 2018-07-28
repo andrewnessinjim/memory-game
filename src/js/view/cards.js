@@ -35,6 +35,11 @@ function initCardsView() {
 
     function createCardDiv(card) {
       const frontDiv = document.createElement('div');
+
+      const cardImg = document.createElement('img');
+      cardImg.setAttribute('src', card.getURL());
+      frontDiv.appendChild(cardImg);
+
       frontDiv.classList.add('card__front');
 
       const backDiv = document.createElement('div');
@@ -70,13 +75,6 @@ function initCardsView() {
       card.getState() === cards.STATE_OPEN
       || card.getState() === cards.STATE_WAITING
     ){
-
-      util.removeAllChildren(frontDiv);
-
-      const cardImg = document.createElement('img');
-      cardImg.setAttribute('src', card.getURL());
-      frontDiv.appendChild(cardImg);
-
       frontDiv.classList.add('card__front--show');
       backDiv.classList.add('card__back--hide');
     }
