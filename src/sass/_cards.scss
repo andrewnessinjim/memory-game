@@ -21,12 +21,15 @@
     height: 100px;
     margin: 2px;
 
+    .card__image {
+      margin: 20px;
+    }
+
     %cardFace {
       width: 100px;
       height: 100px;
       border: 2px groove darken($primary-color, 70%);
       box-sizing: border-box;
-      padding: 20px;
       border-radius: 10px;
       position: absolute;
       backface-visibility: hidden;
@@ -52,10 +55,14 @@
 
     .card__front--matched {
       background: lightgreen;
+      animation-name: rise-and-fall-medium-high;
+      animation-duration: 0.5s;
     }
 
     .card__front--incorrectMatch {
-      background: lightcoral;
+      background: coral;
+      animation-name: rise-and-fall-medium-low;
+      animation-duration: 0.5s;
     }
 
     .card__back--hide {
@@ -68,6 +75,20 @@
 
     .card__back {
       background: darken($primary-color, 40%);
+    }
+
+    .card__correct, .card__incorrect {
+      position: absolute;
+      left: 0;
+      top: 0;
+      opacity: 0;
+      transition: 0.2s all;
+      width: 30px;
+    }
+
+    .card__correct--reveal, .card__incorrect--reveal {
+      animation-name: zoom-and-hide;
+      animation-duration: 0.5s;
     }
   }
 

@@ -22,22 +22,38 @@
   }
 }
 
-@keyframes rise-and-fall {
-  0% {
-    box-shadow: 0px 0px 4px rgba(0, 0, 0, 0.7);
-    transform: scale((1));
-  }
-  50% {
-    box-shadow: 8px 8px 4px rgba(0, 0, 0, 0.7);
-    transform: scale(1.1);
-  }
-  100% {
-    box-shadow: 0px 0px 4px rgba(0, 0, 0, 0.7);
-    transform: scale(1);
+$riseDistances: -0.6, 0.1, 0.4;
+$riseDistanceNames: medium-low, small-high, medium-high;
+
+@for $i from 1 through length($riseDistances) {
+  @keyframes rise-and-fall-#{nth($riseDistanceNames, $i)} {
+    0% {
+      box-shadow: 0px 0px 4px rgba(0, 0, 0, 0.7);
+      transform: scale((1));
+    }
+    50% {
+      box-shadow: 8px 8px 4px rgba(0, 0, 0, 0.7);
+      transform: scale(1 + nth($riseDistances, $i));
+    }
+    100% {
+      box-shadow: 0px 0px 4px rgba(0, 0, 0, 0.7);
+      transform: scale(1);
+    }
   }
 }
 
 @keyframes rotate {
   from {transform: rotate(0deg);}
   to {transform: rotate(360deg);}
+}
+
+@keyframes zoom-and-hide {
+  0% {
+    opacity: 0;
+    transform: scale(1);
+  }
+  100% {
+    opacity: 0.2;
+    transform: scale(1.5);
+  }
 }
