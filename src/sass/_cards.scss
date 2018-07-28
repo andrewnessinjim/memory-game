@@ -6,25 +6,54 @@
   padding: 10px;
   border-radius: 10px;
 
-  .cards__card {
+  .card {
     width: 100px;
     height: 100px;
-    border: 2px groove darken($primary-color, 70%);
-    box-sizing: border-box;
-    margin: 4px 0;
-    padding: 30px;
-    border-radius: 10px;
-    background-position: center;
-    background-size: 50%;
-    background-repeat: no-repeat;
-  }
-  
-  .cards__card--closed {
-    background: radial-gradient(lighten($primary-color, 30%),darken($primary-color, 30%))
+    margin: 2px;
+
+    %cardFace {
+      width: 100px;
+      height: 100px;
+      border: 2px groove darken($primary-color, 70%);
+      box-sizing: border-box;
+      padding: 30px;
+      border-radius: 10px;
+      background-position: center;
+      background-size: 50%;
+      background-repeat: no-repeat;
+      position: absolute;
+      backface-visibility: hidden;
+      transition: 0.3s linear transform;
+      pointer-events: none;
+    }
+
+    .card__front, .card__back {
+      @extend %cardFace;
+    }
+
+    .card__front--hide {
+      transform:  rotateY(180deg);
+    }
+
+    .card__front--show {
+      transform:  rotateY(0deg);
+    }
+
+    .card__back--hide {
+      transform:  rotateY(-180deg);
+    }
+
+    .card__back--show {
+      transform: rotateY(0deg);
+    }
+
+    .card__back {
+      background: radial-gradient(lighten($primary-color, 30%),darken($primary-color, 30%))
+    }
   }
 
   @media (pointer: fine) {
-    .cards__card:hover {
+    .card:hover {
       cursor: pointer;
     }
   }

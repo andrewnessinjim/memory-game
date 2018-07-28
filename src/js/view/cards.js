@@ -13,7 +13,7 @@ function initCardsView() {
 
   gState.addEventListener('state', function(event) {
     let card = event.detail.card;
-    let div = document.querySelector(`.cards__card[card-index="${card.getIndex()}"]`)
+    let div = document.querySelector(`.card[card-index="${card.getIndex()}"]`)
     setCardState(div, card);
   });
 
@@ -32,26 +32,53 @@ function initCardsView() {
     for (let card of gameState.getInstance().getCards()) {
       cardsContainer.appendChild(createCardDiv(card));
     }
+
     function createCardDiv(card) {
-      const div = document.createElement('div');
-      div.classList.add('cards__card');
-      div.setAttribute('card_id', card.getId());
-      div.setAttribute('card-index', card.getIndex());
-      setCardState(div, card);
-      return div;
+      const frontDiv = document.createElement('div');
+      frontDiv.classList.add('card__front');
+
+      const backDiv = document.createElement('div');
+      backDiv.classList.add('card__back');
+
+      const cardDiv = document.createElement('div');
+      cardDiv.classList.add('card');
+      cardDiv.setAttribute('card_id', card.getId());
+      cardDiv.setAttribute('card-index', card.getIndex());
+      cardDiv.appendChild(frontDiv);
+      cardDiv.appendChild(backDiv);
+
+      setCardState(cardDiv, card);
+      return cardDiv;
     }
   }
 
-  function setCardState(div, card) {
-    div.classList.remove('cards__card--closed');
+  function setCardState(cardDiv, card) {
+    const frontDiv = cardDiv.querySelector('.card__front');
+    frontDiv.classList.remove('card__front--show');
+    frontDiv.classList.remove('card__front--hide');
+
+    const backDiv = cardDiv.querySelector('.card__back');
+    backDiv.classList.remove('card__back--show');
+    backDiv.classList.remove('card__back--hide');
+
     if(card.getState() === cards.STATE_CLOSED) {
-      div.classList.add('cards__card--closed');
-      div.style.backgroundImage = '';
+
+      frontDiv.classList.add('card__front--hide');
+      backDiv.classList.add('card__back--show');
+
     } else if (
       card.getState() === cards.STATE_OPEN
       || card.getState() === cards.STATE_WAITING
     ){
-      div.style.backgroundImage = `url(${card.getURL()})`;
+
+      util.removeAllChildren(frontDiv);
+
+      const cardImg = document.createElement('img');
+      cardImg.setAttribute('src', card.getURL());
+      frontDiv.appendChild(cardImg);
+
+      frontDiv.classList.add('card__front--show');
+      backDiv.classList.add('card__back--hide');
     }
   }
 }
