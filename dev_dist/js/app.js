@@ -596,7 +596,7 @@ function initWelcomeForm() {
   const welcomeCheckbox = document.getElementById('welcome');
   let welcome = document.cookie.replace(/(?:(?:^|.*;\s*)welcome\s*\=\s*([^;]*).*$)|^.*$/, "$1");
 
-  if(welcome === 'yes') {
+  if(!welcome || welcome === 'yes') {
     welcomeCheckbox.checked = false;
   } else {
     welcomeCheckbox.checked = true;
