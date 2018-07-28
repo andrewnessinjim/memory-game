@@ -61,6 +61,8 @@ function initCardsView() {
     const frontDiv = cardDiv.querySelector('.card__front');
     frontDiv.classList.remove('card__front--show');
     frontDiv.classList.remove('card__front--hide');
+    frontDiv.classList.remove('card__front--matched');
+    frontDiv.classList.remove('card__front--incorrectMatch');
 
     const backDiv = cardDiv.querySelector('.card__back');
     backDiv.classList.remove('card__back--show');
@@ -70,12 +72,18 @@ function initCardsView() {
       frontDiv.classList.add('card__front--hide');
       backDiv.classList.add('card__back--show');
 
-    } else if (card.getState() === cards.STATE_OPEN){
+    } else if(card.getState() === cards.STATE_WAITING) {
       frontDiv.classList.add('card__front--show');
       backDiv.classList.add('card__back--hide');
 
-    } else if(card.getState() === cards.STATE_WAITING) {
+    } else if (card.getState() === cards.STATE_CORRECT_MATCH){
       frontDiv.classList.add('card__front--show');
+      frontDiv.classList.add('card__front--matched');
+      backDiv.classList.add('card__back--hide');
+
+    } else if (card.getState() === cards.STATE_INCORRECT_MATCH){
+      frontDiv.classList.add('card__front--show');
+      frontDiv.classList.add('card__front--incorrectMatch');
       backDiv.classList.add('card__back--hide');
 
     }

@@ -30,7 +30,7 @@
       border-radius: 10px;
       position: absolute;
       backface-visibility: hidden;
-      transition: 0.3s linear all;
+      transition: 0.3s linear transform, 1s background;
       pointer-events: none;
     }
 
@@ -52,6 +52,10 @@
 
     .card__front--matched {
       background: lightgreen;
+    }
+
+    .card__front--incorrectMatch {
+      background: lightcoral;
     }
 
     .card__back--hide {

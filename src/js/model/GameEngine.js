@@ -78,8 +78,9 @@ let gameEngine = (function() {
       let waitingCard = gState.getWaitingCard();
       let selectedCard = gState.getCard(cardIndex);
 
-      if(selectedCard.getState() === cards.STATE_OPEN ||
-          selectedCard.getState() === cards.STATE_WAITING) {
+      if(selectedCard.getState() === cards.STATE_WAITING ||
+          selectedCard.getState() === cards.STATE_CORRECT_MATCH ||
+          selectedCard.getState() === cards.STATE_INCORRECT_MATCH) {
             //User clicked on already opened card, ignore
             controller.idle = true;
             return;
@@ -91,8 +92,8 @@ let gameEngine = (function() {
 
         if(selectedCard.getId() === waitingCard.getId()) { //User matched a pair
 
-          gState.setCardState(waitingCard.getIndex(), cards.STATE_OPEN);
-          gState.setCardState(selectedCard.getIndex(), cards.STATE_OPEN);
+          gState.setCardState(waitingCard.getIndex(), cards.STATE_CORRECT_MATCH);
+          gState.setCardState(selectedCard.getIndex(), cards.STATE_CORRECT_MATCH);
           gState.setWaitingCard(null);
           gState.incMatches();
           if(gState.getMaxMatches() === gState.getCurrentMatches()) {
@@ -100,8 +101,8 @@ let gameEngine = (function() {
           }
           controller.idle = true;
         } else { //User failed to match a pair
-
-          gState.setCardState(selectedCard.getIndex(), cards.STATE_OPEN);
+          gState.setCardState(waitingCard.getIndex(), cards.STATE_INCORRECT_MATCH);
+          gState.setCardState(selectedCard.getIndex(), cards.STATE_INCORRECT_MATCH);
           setTimeout(function() {
 
             gState.setCardState(selectedCard.getIndex(), cards.STATE_CLOSED);
