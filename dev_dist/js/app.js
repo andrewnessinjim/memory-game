@@ -35,15 +35,17 @@ document.addEventListener('DOMContentLoaded', function() {
 /*
 cards object exposes a Card class which holds data related to a single card.
 It also exposes 3 constants, to be used as the values for the state of the card:
-  - STATE_OPEN -> The card is visible to the user.
   - STATE_CLOSED -> The card is not visible to the user.
   - STATE_WAITING -> The card is visible to the user, but may get closed later.
+  - STATE_CORRECT_MATCH -> Card is matched correctly. It will stay open.
+  - STATE_INCORRECT_MATCH -> Card is matched incorrctly. May get closed later.
  */
 let cards = (function() {
   const
-    STATE_OPEN= 'state_open',
-    STATE_CLOSED= 'state_closed',
-    STATE_WAITING= 'state_waiting';
+    STATE_CLOSED= 'STATE_CLOSED',
+    STATE_WAITING= 'STATE_WAITING';
+    STATE_CORRECT_MATCH = 'STATE_CORRECT_MATCH';
+    STATE_INCORRECT_MATCH = 'STATE_INCORRECT_MATCH';
 
   let _url = Symbol('URL');
   let _state = Symbol('state');
@@ -82,9 +84,11 @@ let cards = (function() {
         return this[_state];
       }
     },
-    STATE_OPEN: STATE_OPEN,
+
     STATE_CLOSED: STATE_CLOSED,
-    STATE_WAITING: STATE_WAITING
+    STATE_WAITING: STATE_WAITING,
+    STATE_CORRECT_MATCH: STATE_CORRECT_MATCH,
+    STATE_INCORRECT_MATCH: STATE_INCORRECT_MATCH
   }
 })();
 /*
@@ -211,8 +215,9 @@ let gameEngine = (function() {
       let waitingCard = gState.getWaitingCard();
       let selectedCard = gState.getCard(cardIndex);
 
-      if(selectedCard.getState() === cards.STATE_OPEN ||
-          selectedCard.getState() === cards.STATE_WAITING) {
+      if(selectedCard.getState() === cards.STATE_WAITING ||
+          selectedCard.getState() === cards.STATE_CORRECT_MATCH ||
+          selectedCard.getState() === cards.STATE_INCORRECT_MATCH) {
             //User clicked on already opened card, ignore
             controller.idle = true;
             return;
@@ -224,8 +229,8 @@ let gameEngine = (function() {
 
         if(selectedCard.getId() === waitingCard.getId()) { //User matched a pair
 
-          gState.setCardState(waitingCard.getIndex(), cards.STATE_OPEN);
-          gState.setCardState(selectedCard.getIndex(), cards.STATE_OPEN);
+          gState.setCardState(waitingCard.getIndex(), cards.STATE_CORRECT_MATCH);
+          gState.setCardState(selectedCard.getIndex(), cards.STATE_CORRECT_MATCH);
           gState.setWaitingCard(null);
           gState.incMatches();
           if(gState.getMaxMatches() === gState.getCurrentMatches()) {
@@ -233,8 +238,8 @@ let gameEngine = (function() {
           }
           controller.idle = true;
         } else { //User failed to match a pair
-
-          gState.setCardState(selectedCard.getIndex(), cards.STATE_OPEN);
+          gState.setCardState(waitingCard.getIndex(), cards.STATE_INCORRECT_MATCH);
+          gState.setCardState(selectedCard.getIndex(), cards.STATE_INCORRECT_MATCH);
           setTimeout(function() {
 
             gState.setCardState(selectedCard.getIndex(), cards.STATE_CLOSED);
@@ -515,22 +520,31 @@ function initCardsView() {
     const frontDiv = cardDiv.querySelector('.card__front');
     frontDiv.classList.remove('card__front--show');
     frontDiv.classList.remove('card__front--hide');
+    frontDiv.classList.remove('card__front--matched');
+    frontDiv.classList.remove('card__front--incorrectMatch');
 
     const backDiv = cardDiv.querySelector('.card__back');
     backDiv.classList.remove('card__back--show');
     backDiv.classList.remove('card__back--hide');
 
     if(card.getState() === cards.STATE_CLOSED) {
-
       frontDiv.classList.add('card__front--hide');
       backDiv.classList.add('card__back--show');
 
-    } else if (
-      card.getState() === cards.STATE_OPEN
-      || card.getState() === cards.STATE_WAITING
-    ){
+    } else if(card.getState() === cards.STATE_WAITING) {
       frontDiv.classList.add('card__front--show');
       backDiv.classList.add('card__back--hide');
+
+    } else if (card.getState() === cards.STATE_CORRECT_MATCH){
+      frontDiv.classList.add('card__front--show');
+      frontDiv.classList.add('card__front--matched');
+      backDiv.classList.add('card__back--hide');
+
+    } else if (card.getState() === cards.STATE_INCORRECT_MATCH){
+      frontDiv.classList.add('card__front--show');
+      frontDiv.classList.add('card__front--incorrectMatch');
+      backDiv.classList.add('card__back--hide');
+
     }
   }
 }
