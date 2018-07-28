@@ -5,7 +5,8 @@ document.addEventListener('DOMContentLoaded', function() {
   initStarsView();
   initTimerView();
   initMovesView();
-  initResetButton();
+  initWelcomeForm();
+  initControls();
   initMagnetButton();
 
   document.querySelector('.app').classList.remove('app--hide');
