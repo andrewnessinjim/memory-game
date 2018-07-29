@@ -48,6 +48,10 @@
 
     .card__front--hide {
       transform:  rotateY(180deg);
+
+      .card__image {
+        display: none;
+      }
     }
 
     .card__front--show {
