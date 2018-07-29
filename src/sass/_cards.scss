@@ -13,7 +13,8 @@
   box-shadow: 3px 3px 5px black;
 
   .card:active {
-    transform: scale(0.95);
+    transform: translateY(15%);
+    transition: 0.2s all;
   }
 
   .card {
@@ -60,9 +61,9 @@
     }
 
     .card__front--incorrectMatch {
-      background: coral;
-      animation-name: rise-and-fall-medium-low;
-      animation-duration: 0.5s;
+      background-color: coral;
+      transition: 0.3s all;
+      transform: translateY(-5%);
     }
 
     .card__back--hide {
@@ -75,20 +76,6 @@
 
     .card__back {
       background: darken($primary-color, 40%);
-    }
-
-    .card__correct, .card__incorrect {
-      position: absolute;
-      left: 0;
-      top: 0;
-      opacity: 0;
-      transition: 0.2s all;
-      width: 30px;
-    }
-
-    .card__correct--reveal, .card__incorrect--reveal {
-      animation-name: zoom-and-hide;
-      animation-duration: 0.5s;
     }
   }
 

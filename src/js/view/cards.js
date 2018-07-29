@@ -40,17 +40,6 @@ function initCardsView() {
       cardImg.classList.add('card__image');
       cardImg.setAttribute('src', card.getURL());
       frontDiv.appendChild(cardImg);
-
-      const feedbackCorrect = document.createElement('img');
-      feedbackCorrect.setAttribute('src','images/correct.svg');
-      feedbackCorrect.classList.add('card__correct');
-      frontDiv.appendChild(feedbackCorrect);
-
-      const feedbackIncorrect = document.createElement('img');
-      feedbackIncorrect.setAttribute('src', 'images/incorrect.svg');
-      feedbackIncorrect.classList.add('card__incorrect');
-      frontDiv.appendChild(feedbackIncorrect);
-
       frontDiv.classList.add('card__front');
 
       const backDiv = document.createElement('div');
@@ -79,12 +68,6 @@ function initCardsView() {
     backDiv.classList.remove('card__back--show');
     backDiv.classList.remove('card__back--hide');
 
-    const correctFeedback = cardDiv.querySelector('.card__correct');
-    correctFeedback.classList.remove('card__correct--reveal');
-
-    const incorrectFeedback = cardDiv.querySelector('.card__incorrect');
-    incorrectFeedback.classList.remove('card__incorrect--reveal');
-
     if(card.getState() === cards.STATE_CLOSED) {
       frontDiv.classList.add('card__front--hide');
       backDiv.classList.add('card__back--show');
@@ -96,13 +79,11 @@ function initCardsView() {
     } else if (card.getState() === cards.STATE_CORRECT_MATCH){
       frontDiv.classList.add('card__front--show');
       frontDiv.classList.add('card__front--matched');
-      correctFeedback.classList.add('card__correct--reveal');
       backDiv.classList.add('card__back--hide');
 
     } else if (card.getState() === cards.STATE_INCORRECT_MATCH){
       frontDiv.classList.add('card__front--show');
       frontDiv.classList.add('card__front--incorrectMatch');
-      incorrectFeedback.classList.add('card__incorrect--reveal');
       backDiv.classList.add('card__back--hide');
     }
   }
