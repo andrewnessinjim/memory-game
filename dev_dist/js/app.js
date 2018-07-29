@@ -146,8 +146,9 @@ let gameEngine = (function() {
   const timerWeightage = 0.25;
   const movesWeightage = 0.75;
 
-  let movesPenaltyFactor = 0.001;
-  let timerPenaltyFactor = 0.01;
+  let movesPenaltyFactor = 0.05;
+  let movesIncrementPenaltyFactor = 0.05;
+  let timerPenaltyFactor = 0.02;
   let timerIncrementPenaltyFactor = 0.01;
 
   let timer;
@@ -169,17 +170,17 @@ let gameEngine = (function() {
     const timerSeconds = gState.getTimerSeconds();
 
     let movesScore;
-    if (moves < (3 * deckSize / 4)) {
+    if (moves <= deckSize) {
       movesScore = 1;
     } else {
       movesScore = 1 - movesPenaltyFactor;
       if (didMove) {
-        movesPenaltyFactor *= 2;
+        movesPenaltyFactor += movesIncrementPenaltyFactor;
       }
     }
 
     let timerScore;
-    if(timerSeconds < (1 * deckSize)) {
+    if(timerSeconds <= (1.5 * deckSize)) {
       timerScore = 1;
     } else {
       timerScore = 1 - timerPenaltyFactor;
@@ -411,52 +412,6 @@ let gameState = (function() {
     }
   }
 })();
-if (!String.prototype.padStart) {
-  String.prototype.padStart = function padStart(targetLength,padString) {
-      targetLength = targetLength>>0; //truncate if number or convert non-number to 0;
-      padString = String((typeof padString !== 'undefined' ? padString : ' '));
-      if (this.length > targetLength) {
-          return String(this);
-      }
-      else {
-          targetLength = targetLength-this.length;
-          if (targetLength > padString.length) {
-              padString += padString.repeat(targetLength/padString.length); //append to original to ensure we are longer than needed
-          }
-          return padString.slice(0,targetLength) + String(this);
-      }
-  };
-}
-let util = {
-  shuffle: function shuffle(array) {
-    var currentIndex = array.length, temporaryValue, randomIndex;
-  
-    // While there remain elements to shuffle...
-    while (0 !== currentIndex) {
-  
-      // Pick a remaining element...
-      randomIndex = Math.floor(Math.random() * currentIndex);
-      currentIndex -= 1;
-  
-      // And swap it with the current element.
-      temporaryValue = array[currentIndex];
-      array[currentIndex] = array[randomIndex];
-      array[randomIndex] = temporaryValue;
-    }
-  
-    return array;
-  },
-
-  removeAllChildren: function (parent) {
-    while(parent.firstChild) {
-      parent.removeChild(parent.firstChild);
-    }
-  },
-
-  toDecimal: function(number, decimalPoints) {
-    return parseFloat(number.toFixed(decimalPoints));
-  }
-}
 function initCardsView() {
   const cardsContainer = document.querySelector('.cards');
   const gState = gameState.getInstance();
@@ -745,5 +700,51 @@ function initTimerView() {
     let minutes = Math.floor(seconds / 60).toString().padStart(2, '0');
     seconds = Math.floor(seconds - (minutes * 60)).toString().padStart(2, '0');
     view.textContent = `${minutes}:${seconds}`;
+  }
+}
+if (!String.prototype.padStart) {
+  String.prototype.padStart = function padStart(targetLength,padString) {
+      targetLength = targetLength>>0; //truncate if number or convert non-number to 0;
+      padString = String((typeof padString !== 'undefined' ? padString : ' '));
+      if (this.length > targetLength) {
+          return String(this);
+      }
+      else {
+          targetLength = targetLength-this.length;
+          if (targetLength > padString.length) {
+              padString += padString.repeat(targetLength/padString.length); //append to original to ensure we are longer than needed
+          }
+          return padString.slice(0,targetLength) + String(this);
+      }
+  };
+}
+let util = {
+  shuffle: function shuffle(array) {
+    var currentIndex = array.length, temporaryValue, randomIndex;
+  
+    // While there remain elements to shuffle...
+    while (0 !== currentIndex) {
+  
+      // Pick a remaining element...
+      randomIndex = Math.floor(Math.random() * currentIndex);
+      currentIndex -= 1;
+  
+      // And swap it with the current element.
+      temporaryValue = array[currentIndex];
+      array[currentIndex] = array[randomIndex];
+      array[randomIndex] = temporaryValue;
+    }
+  
+    return array;
+  },
+
+  removeAllChildren: function (parent) {
+    while(parent.firstChild) {
+      parent.removeChild(parent.firstChild);
+    }
+  },
+
+  toDecimal: function(number, decimalPoints) {
+    return parseFloat(number.toFixed(decimalPoints));
   }
 }
