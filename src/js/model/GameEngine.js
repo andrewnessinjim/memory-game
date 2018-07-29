@@ -9,8 +9,9 @@ let gameEngine = (function() {
   const timerWeightage = 0.25;
   const movesWeightage = 0.75;
 
-  let movesPenaltyFactor = 0.001;
-  let timerPenaltyFactor = 0.01;
+  let movesPenaltyFactor = 0.05;
+  let movesIncrementPenaltyFactor = 0.05;
+  let timerPenaltyFactor = 0.02;
   let timerIncrementPenaltyFactor = 0.01;
 
   let timer;
@@ -32,17 +33,17 @@ let gameEngine = (function() {
     const timerSeconds = gState.getTimerSeconds();
 
     let movesScore;
-    if (moves < (3 * deckSize / 4)) {
+    if (moves <= deckSize) {
       movesScore = 1;
     } else {
       movesScore = 1 - movesPenaltyFactor;
       if (didMove) {
-        movesPenaltyFactor *= 2;
+        movesPenaltyFactor += movesIncrementPenaltyFactor;
       }
     }
 
     let timerScore;
-    if(timerSeconds < (1 * deckSize)) {
+    if(timerSeconds <= (1.5 * deckSize)) {
       timerScore = 1;
     } else {
       timerScore = 1 - timerPenaltyFactor;
