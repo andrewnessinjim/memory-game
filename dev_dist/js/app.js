@@ -30,8 +30,53 @@ document.addEventListener('DOMContentLoaded', function() {
   initControls();
   initMagnetButton();
 
-  document.querySelector('.app').classList.remove('app--hide');
 });
+if (!String.prototype.padStart) {
+  String.prototype.padStart = function padStart(targetLength,padString) {
+      targetLength = targetLength>>0; //truncate if number or convert non-number to 0;
+      padString = String((typeof padString !== 'undefined' ? padString : ' '));
+      if (this.length > targetLength) {
+          return String(this);
+      }
+      else {
+          targetLength = targetLength-this.length;
+          if (targetLength > padString.length) {
+              padString += padString.repeat(targetLength/padString.length); //append to original to ensure we are longer than needed
+          }
+          return padString.slice(0,targetLength) + String(this);
+      }
+  };
+}
+let util = {
+  shuffle: function shuffle(array) {
+    let currentIndex = array.length, temporaryValue, randomIndex;
+  
+    // While there remain elements to shuffle...
+    while (0 !== currentIndex) {
+  
+      // Pick a remaining element...
+      randomIndex = Math.floor(Math.random() * currentIndex);
+      currentIndex -= 1;
+  
+      // And swap it with the current element.
+      temporaryValue = array[currentIndex];
+      array[currentIndex] = array[randomIndex];
+      array[randomIndex] = temporaryValue;
+    }
+  
+    return array;
+  },
+
+  removeAllChildren: function (parent) {
+    while(parent.firstChild) {
+      parent.removeChild(parent.firstChild);
+    }
+  },
+
+  toDecimal: function(number, decimalPoints) {
+    return parseFloat(number.toFixed(decimalPoints));
+  }
+}
 /*
 cards object exposes a Card class which holds data related to a single card.
 It also exposes 3 constants, to be used as the values for the state of the card:
@@ -169,35 +214,40 @@ let gameEngine = (function() {
     const moves = gState.getMoves();
     const timerSeconds = gState.getTimerSeconds();
 
-    let movesScore;
-    if (moves <= deckSize) {
-      movesScore = 1;
-    } else {
-      movesScore = 1 - movesPenaltyFactor;
-      if (didMove) {
-        movesPenaltyFactor += movesIncrementPenaltyFactor;
+    if(gState.getStars() > 0.2) { //Number of stars cannot be less than 1. Each star is worth 0.2 value
+      let movesScore;
+      if (moves <= deckSize) {
+        movesScore = 1;
+      } else {
+        movesScore = 1 - movesPenaltyFactor;
+        if (didMove) {
+          movesPenaltyFactor += movesIncrementPenaltyFactor;
+        }
       }
-    }
 
-    let timerScore;
-    if(timerSeconds <= (1.5 * deckSize)) {
-      timerScore = 1;
-    } else {
-      timerScore = 1 - timerPenaltyFactor;
-      if(didTimerIncrease) {
-        timerPenaltyFactor += timerIncrementPenaltyFactor;
+      let timerScore;
+      if(timerSeconds <= (1.5 * deckSize)) {
+        timerScore = 1;
+      } else {
+        timerScore = 1 - timerPenaltyFactor;
+        if(didTimerIncrease) {
+          timerPenaltyFactor += timerIncrementPenaltyFactor;
+        }
       }
-    }
 
-    let stars = 0;
-    if(timerScore >= 0) {
-      stars += (timerScore * timerWeightage);
-    }
+      let stars = 0;
+      if(timerScore >= 0) {
+        stars += (timerScore * timerWeightage);
+      }
 
-    if(movesScore >= 0) {
-      stars += (movesScore * movesWeightage);
+      if(movesScore >= 0) {
+        stars += (movesScore * movesWeightage);
+      }
+      if(stars < 0.2) { //Don't let the stars value drop below 1 star
+        stars = 0.2;
+      }
+      gState.setStars(stars);
     }
-    gState.setStars(stars);
   };
 
   let winListener =function() {
@@ -700,51 +750,5 @@ function initTimerView() {
     let minutes = Math.floor(seconds / 60).toString().padStart(2, '0');
     seconds = Math.floor(seconds - (minutes * 60)).toString().padStart(2, '0');
     view.textContent = `${minutes}:${seconds}`;
-  }
-}
-if (!String.prototype.padStart) {
-  String.prototype.padStart = function padStart(targetLength,padString) {
-      targetLength = targetLength>>0; //truncate if number or convert non-number to 0;
-      padString = String((typeof padString !== 'undefined' ? padString : ' '));
-      if (this.length > targetLength) {
-          return String(this);
-      }
-      else {
-          targetLength = targetLength-this.length;
-          if (targetLength > padString.length) {
-              padString += padString.repeat(targetLength/padString.length); //append to original to ensure we are longer than needed
-          }
-          return padString.slice(0,targetLength) + String(this);
-      }
-  };
-}
-let util = {
-  shuffle: function shuffle(array) {
-    var currentIndex = array.length, temporaryValue, randomIndex;
-  
-    // While there remain elements to shuffle...
-    while (0 !== currentIndex) {
-  
-      // Pick a remaining element...
-      randomIndex = Math.floor(Math.random() * currentIndex);
-      currentIndex -= 1;
-  
-      // And swap it with the current element.
-      temporaryValue = array[currentIndex];
-      array[currentIndex] = array[randomIndex];
-      array[randomIndex] = temporaryValue;
-    }
-  
-    return array;
-  },
-
-  removeAllChildren: function (parent) {
-    while(parent.firstChild) {
-      parent.removeChild(parent.firstChild);
-    }
-  },
-
-  toDecimal: function(number, decimalPoints) {
-    return parseFloat(number.toFixed(decimalPoints));
   }
 }
