@@ -9,5 +9,4 @@ document.addEventListener('DOMContentLoaded', function() {
   initControls();
   initMagnetButton();
 
-  document.querySelector('.app').classList.remove('app--hide');
 });

@@ -1,11 +1,8 @@
 .app {
   overflow-x: hidden;
   width: 100%;
-  transition: 0.5s opacity;
-}
-
-.app--hide {
-  opacity: 0;
+  animation-name: fade-in;
+  animation-duration: 1s;
 }
 
 .gameboard {
