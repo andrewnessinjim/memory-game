@@ -32,35 +32,40 @@ let gameEngine = (function() {
     const moves = gState.getMoves();
     const timerSeconds = gState.getTimerSeconds();
 
-    let movesScore;
-    if (moves <= deckSize) {
-      movesScore = 1;
-    } else {
-      movesScore = 1 - movesPenaltyFactor;
-      if (didMove) {
-        movesPenaltyFactor += movesIncrementPenaltyFactor;
+    if(gState.getStars() > 0.2) { //Number of stars cannot be less than 1. Each star is worth 0.2 value
+      let movesScore;
+      if (moves <= deckSize) {
+        movesScore = 1;
+      } else {
+        movesScore = 1 - movesPenaltyFactor;
+        if (didMove) {
+          movesPenaltyFactor += movesIncrementPenaltyFactor;
+        }
       }
-    }
 
-    let timerScore;
-    if(timerSeconds <= (1.5 * deckSize)) {
-      timerScore = 1;
-    } else {
-      timerScore = 1 - timerPenaltyFactor;
-      if(didTimerIncrease) {
-        timerPenaltyFactor += timerIncrementPenaltyFactor;
+      let timerScore;
+      if(timerSeconds <= (1.5 * deckSize)) {
+        timerScore = 1;
+      } else {
+        timerScore = 1 - timerPenaltyFactor;
+        if(didTimerIncrease) {
+          timerPenaltyFactor += timerIncrementPenaltyFactor;
+        }
       }
-    }
 
-    let stars = 0;
-    if(timerScore >= 0) {
-      stars += (timerScore * timerWeightage);
-    }
+      let stars = 0;
+      if(timerScore >= 0) {
+        stars += (timerScore * timerWeightage);
+      }
 
-    if(movesScore >= 0) {
-      stars += (movesScore * movesWeightage);
+      if(movesScore >= 0) {
+        stars += (movesScore * movesWeightage);
+      }
+      if(stars < 0.2) { //Don't let the stars value drop below 1 star
+        stars = 0.2;
+      }
+      gState.setStars(stars);
     }
-    gState.setStars(stars);
   };
 
   let winListener =function() {
