@@ -1,5 +1,7 @@
-let gulp = require('gulp');
+let gulp = require('gulp'),
     $ = require('gulp-load-plugins')();
+
+$.sass.compiler = require('sass');
 
 let config = {
     styles: {
@@ -91,7 +93,7 @@ function prodStyles() {
     return gulp
         .src(config.styles.src)
         .pipe($.sass(config.styles.prodSassOptions))
-        .pipe($.minifyCss())
+        .pipe($.cleanCss())
         .pipe(gulp.dest(config.styles.prodDest));
 }
 
