@@ -1,7 +1,11 @@
 let gulp = require('gulp'),
-    $ = require('gulp-load-plugins')();
+    $ = require('gulp-load-plugins')({
+        rename: {
+          'gulp-sass-no-nodesass': 'gulpSass'
+        }
+      });
 
-$.sass.compiler = require('sass');
+$.gulpSass.compiler = require('sass');
 
 let config = {
     styles: {
@@ -84,7 +88,7 @@ function devStyles() {
     return gulp
         .src(config.styles.src)
         .pipe($.sourcemaps.init())
-        .pipe($.sass(config.styles.devSassOptions))
+        .pipe($.gulpSass(config.styles.devSassOptions))
         .pipe($.sourcemaps.write())
         .pipe(gulp.dest(config.styles.devDest));
 }
@@ -92,7 +96,7 @@ function devStyles() {
 function prodStyles() {
     return gulp
         .src(config.styles.src)
-        .pipe($.sass(config.styles.prodSassOptions))
+        .pipe($.gulpSass(config.styles.prodSassOptions))
         .pipe($.cleanCss())
         .pipe(gulp.dest(config.styles.prodDest));
 }

@@ -1,0 +1,19 @@
+FROM node:alpine3.11
+
+COPY . /app
+
+WORKDIR /app
+
+RUN npm install -g gulp-cli && npm install -g live-server && apk add g++ && apk add python && apk add make
+
+RUN npm install && gulp prod
+
+EXPOSE 8080
+
+CMD live-server /app/dist
+
+RUN npm install && gulp prod:build
+
+EXPOSE 8080
+
+CMD live-server /app/dist
